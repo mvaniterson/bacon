@@ -1,0 +1,170 @@
+---
+title: "Controlling bias and inflation in association studies using the empirical null distribution"
+output: 
+  BiocStyle::html_document:
+   toc: true
+bibliography: bacon.bib
+vignette: >
+  %\VignetteIndexEntry{Controlling bias and inflation in association studies using the empirical null distribution}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r style, echo = FALSE, results = 'asis', warning=FALSE}
+suppressPackageStartupMessages(library(bacon))
+BiocStyle::markdown()
+```
+
+**Package**: `r Biocpkg("bacon")`<br />
+**Authors**: `r packageDescription("bacon")[["Author"]] `<br />
+**Modified**: Mon Mar 14 08:24:17 2016<br />
+**Compiled**: `r date()`
+
+# Introduction #
+
+`r Biocpkg("bacon")` can be used to remove inflation and bias often
+observed in epigenome- and transcriptome-wide association
+studies[@Iterson2016]. 
+
+To this end `r Biocpkg("bacon")` constructs an empirical null
+distribution using a Gibbs Sampling algorithm by fitting a
+three-component normal mixture on z-scores. One component is forced,
+using prior knowledge, to represent the null distribution with mean
+and standard deviation representing the bias and inflation. The other
+two components are necessary to capture the amount of true
+associations present in the data, which we assume unknown but small.
+
+`r Biocpkg("bacon")` provides functionality to inspect the output of
+the Gibbs Sampling algorithm, i.e., traces, posterior distributions
+and the mixture fit, are provided. Furthermore, inflation- and
+bias-corrected test-statistics or P-values are extracted easily. In
+addition, functionality for performing fixed-effect meta-analysis are
+provided.
+
+The function `bacon` requires a vector or a matrix of z-scores, e.g.,
+those extracted from association analyses using a linear regression
+approach. For fixed-effect meta-analysis a matrix of effect-sizes and
+standard errors is required.
+
+The vignette illustrates the use of `r Biocpkg("bacon")` using
+simulated z-scores, effect-sizes and standard errors to avoid long
+runtimes. If multiple sets of test-statisics or effect-sizes and
+standard errors are provided, the Gibbs Sampler Algorithm can be
+executed on multiple nodes to reduce computation time using
+functionality provide by `r Biocpkg("BiocParallel")`-package.
+
+# One set of test-statistics #
+
+A vector containing 2000 z-scores is generated from a normal mixture
+distribution 90% of the z-scores were drawn from $\mathcal{N}(0,1)$
+and the remaining z-scores from $\mathcal{N}(\mu,1)$, where $\mu \sim
+\mathcal{N}(4,1)$.
+
+The function `bacon` executes the Gibbs Sampler Algorithm and stores
+all input and output in a `Bacon`-object. Several accessor-functions
+are available to access data contained in the `Bacon`-object.
+
+```{r simulateddata1, message=FALSE}
+set.seed(12345)
+y <- rnormmix(2000, c(0.9, 0, 1, 0, 4, 1))
+bc <- bacon(y)
+bc
+estimates(bc)
+inflation(bc)
+bias(bc)
+```
+
+Several methods are provided to inspect the output of the Gibbs
+Sampler Algorithm, such as traces of all estimates, the posterior
+distributions, provide as a scatter plot between two parameters,
+the actual fit of the three component mixture to the histogram of
+z-scores.
+
+```{r gsoutput}
+traces(bc, burnin=FALSE)
+posteriors(bc)
+fit(bc, n=100)
+```
+
+There is also a generic plot function that can generate two types of
+plots. A histogram of the z-scores with on top the standard normal
+distribution and the bacon estimated empirical null distribution.
+Or a quantile-quantile plot of the $-log_{10}$ transformed P-values.
+
+```{r plothist1}
+plot(bc, type="hist", n=100, xlab="", ylab="", main="")
+plot(bc, type="qq", pch=1, xlab="expected", ylab="observed", main="")
+```
+
+# Multiple sets of test-statistics #
+
+Matrices containing $2000\times6$ effect-sizes and standard errors are
+generated to simulated data for a fixed-effect meta-analyses.
+
+By default the function `bacon` detects the number of cores/nodes
+registered, as described in the `r Biocpkg("BiocParallel")`, to
+perform bacon in parallel. To run the vignette in general we set it
+here for convenience to 1 node.
+
+```{r simulateddata2, message=FALSE}
+library(bacon)
+set.seed(12345)
+es <- replicate(6, rnormmix(2000, c(0.9, 0, 1, 0, 4, 1)))
+se <- replicate(6, 0.8*sqrt(4/rchisq(2000,df=4)))
+colnames(es) <- colnames(se) <- LETTERS[1:ncol(se)]
+rownames(es) <- rownames(se) <- 1:2000
+head(rownames(es))
+head(colnames(es))
+```
+
+```{r runbacon}
+library(BiocParallel)
+register(MulticoreParam(1, log=TRUE))
+bc <- bacon(NULL, es, se)
+bc
+estimates(bc)
+inflation(bc)
+bias(bc)
+head(tstat(bc))
+head(pval(bc))
+head(se(bc))
+head(es(bc))
+```
+
+The accessor-function return as expected matrices of estimates. For
+the plotting functions an additional index of the ith study or z-score
+is required.
+
+```{r traces2}
+traces(bc, burnin=FALSE, index=3)
+posteriors(bc, index=3)
+fit(bc, index=3, n=100)
+
+```
+
+```{r plothist2}
+plot(bc, type="hist", n=100, xlab="", ylab="")
+```
+
+```{r qqplot2}
+plot(bc, type="qq", xlab="expected", ylab="observed")
+```
+
+# Fixed-effect meta-analysis #
+
+The following code chunk show how the neta-analysis P-values from bias
+and inflation corrected effect-sizes and standard errors can be add to
+the qqplot.
+
+```{r meta}
+fm <- meta(bc)
+hist(fm$pval)
+pl <- plot(bc, type="qq", pch=1, xlab="expected", ylab="observed", main="")
+points(pl$x, sort(-log10(fm$pval)), col=1, pch=16)
+```
+
+# Session Info
+```{r session info, echo=FALSE}
+sessionInfo()
+```
+
+# References #
