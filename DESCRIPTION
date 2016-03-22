@@ -2,11 +2,11 @@ Package: bacon
 Type: Package
 Title: Controlling bias and inflation in association studies using the
         empirical null distribution
-Version: 0.99.3
+Version: 0.99.4
 Authors@R: c(person("Maarten", "van Iterson",
         email="mviterson@gmail.com", role="cre"), person("Erik", "van
         Zwet", role="ctb"))
-Author: Maartyen van Iterson [aut, cre], Erik van Zwet [ctb]
+Author: Maarten van Iterson [aut, cre], Erik van Zwet [ctb]
 Maintainer: Maarten van Iterson <mviterson@gmail.com>
 Description: Bacon can be used to remove inflation and bias often
         observed in epigenome- and transcriptome-wide association
@@ -23,3 +23,5 @@ RoxygenNote: 5.0.1
 Collate: 'BaconClass.R' 'BaconMethods.R' 'bacon.R' 'normmixture.R'
 VignetteBuilder: knitr
 NeedsCompilation: yes
+URL: https://github.com/mvaniterson/bacon
+BugReports: https://github.com/mvaniterson/bacon/issues
