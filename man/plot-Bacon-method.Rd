@@ -3,9 +3,9 @@
 \docType{methods}
 \name{plot,Bacon-method}
 \alias{plot,Bacon-method}
-\title{plot}
+\title{plot hist or qq}
 \usage{
-\S4method{plot}{Bacon}(x, y, type = c("hist", "qq"), ...)
+\S4method{plot}{Bacon}(x, y, type = c("hist", "qq"))
 }
 \arguments{
 \item{x}{'bacon'-object}
@@ -13,13 +13,11 @@
 \item{y}{NULL}
 
 \item{type}{hist or qq}
-
-\item{...}{additional plotting parameters}
 }
 \value{
-either qq-plot of P-values or histogram of test-statistics
+either qq-plot of P-values or histogram of Test-statistics
 }
 \description{
-simple plot function for 'bacon'-object
+simple ggplot2 plotting function for 'bacon'-object
 }
 

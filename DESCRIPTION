@@ -2,7 +2,7 @@ Package: bacon
 Type: Package
 Title: Controlling bias and inflation in association studies using the
         empirical null distribution
-Version: 0.99.4
+Version: 0.99.5
 Authors@R: c(person("Maarten", "van Iterson",
         email="mviterson@gmail.com", role="cre"), person("Erik", "van
         Zwet", role="ctb"))
@@ -14,7 +14,8 @@ Description: Bacon can be used to remove inflation and bias often
         distribution using a Gibbs Sampling algorithm by fitting a
         three-component normal mixture on z-scores.
 License: GPL (>= 2)
-Depends: R (>= 3.3), methods, stats, graphics, BiocParallel, ellipse
+Depends: R (>= 3.3), methods, stats, ggplot2, graphics, BiocParallel,
+	 ellipse
 Suggests: BiocStyle, knitr, rmarkdown, testthat, roxygen2
 biocViews: StatisticalMethod, Bayesian, Regression,
         GenomeWideAssociation, Transcriptomics, RNASeq,

@@ -16,7 +16,7 @@ BiocStyle::markdown()
 
 **Package**: `r Biocpkg("bacon")`<br />
 **Authors**: `r packageDescription("bacon")[["Author"]] `<br />
-**Modified**: Mon Mar 14 08:24:17 2016<br />
+**Modified**: Fri Mar 25 11:54:05 2016<br />
 **Compiled**: `r date()`
 
 # Introduction #
@@ -91,8 +91,8 @@ distribution and the bacon estimated empirical null distribution.
 Or a quantile-quantile plot of the $-log_{10}$ transformed P-values.
 
 ```{r plothist1}
-plot(bc, type="hist", n=100, xlab="", ylab="", main="")
-plot(bc, type="qq", pch=1, xlab="expected", ylab="observed", main="")
+plot(bc, type="hist")
+plot(bc, type="qq")
 ```
 
 # Multiple sets of test-statistics #
@@ -106,7 +106,6 @@ perform bacon in parallel. To run the vignette in general we set it
 here for convenience to 1 node.
 
 ```{r simulateddata2, message=FALSE}
-library(bacon)
 set.seed(12345)
 es <- replicate(6, rnormmix(2000, c(0.9, 0, 1, 0, 4, 1)))
 se <- replicate(6, 0.8*sqrt(4/rchisq(2000,df=4)))
@@ -142,24 +141,23 @@ fit(bc, index=3, n=100)
 ```
 
 ```{r plothist2}
-plot(bc, type="hist", n=100, xlab="", ylab="")
+plot(bc, type="hist")
 ```
 
 ```{r qqplot2}
-plot(bc, type="qq", xlab="expected", ylab="observed")
+plot(bc, type="qq")
 ```
 
 # Fixed-effect meta-analysis #
 
-The following code chunk show how the neta-analysis P-values from bias
-and inflation corrected effect-sizes and standard errors can be add to
-the qqplot.
+The following code chunk shows how to perform fixed-effect
+meta-analysis and the inspection of results.
 
 ```{r meta}
-fm <- meta(bc)
-hist(fm$pval)
-pl <- plot(bc, type="qq", pch=1, xlab="expected", ylab="observed", main="")
-points(pl$x, sort(-log10(fm$pval)), col=1, pch=16)
+bcm <- meta(bc)
+head(pval(bcm))
+plot(bcm, type="qq")
+(topTable(bcm))
 ```
 
 # Session Info
@@ -168,3 +166,4 @@ sessionInfo()
 ```
 
 # References #
+

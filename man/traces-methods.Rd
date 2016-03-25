@@ -26,7 +26,7 @@ Method to plot Gibbs sampling traces
 \examples{
 y <- rnormmix(2000, c(0.9, 0, 1, 0, 4, 1))
 ##nbins = 100 to speed up the calculations
-bc <- bacon(y, nbins=100) 
+bc <- bacon(y, nbins=100)
 traces(bc)
 }
 \seealso{

@@ -22,7 +22,7 @@ Method to extract the estimated inflation from the 'bacon'-object
 \examples{
 y <- rnormmix(2000, c(0.9, 0, 1, 0, 4, 1))
 ##nbins = 100 to speed up the calculations
-bc <- bacon(y, nbins=100) 
+bc <- bacon(y, nbins=100)
 inflation(bc)
 }
 \seealso{

@@ -57,7 +57,7 @@ setGeneric("estimates", function(object){ standardGeneric("estimates") })
 ##' @examples
 ##' y <- rnormmix(2000, c(0.9, 0, 1, 0, 4, 1))
 ##' ##nbins = 100 to speed up the calculations
-##' bc <- bacon(y, nbins=100) 
+##' bc <- bacon(y, nbins=100)
 ##' inflation(bc)
 setGeneric("inflation", function(object){ standardGeneric("inflation") })
 
@@ -71,7 +71,7 @@ setGeneric("inflation", function(object){ standardGeneric("inflation") })
 ##' @examples
 ##' y <- rnormmix(2000, c(0.9, 0, 1, 0, 4, 1))
 ##' ##nbins = 100 to speed up the calculations
-##' bc <- bacon(y, nbins=100) 
+##' bc <- bacon(y, nbins=100)
 ##' bias(bc)
 setGeneric("bias", function(object){ standardGeneric("bias") })
 
@@ -86,7 +86,7 @@ setGeneric("bias", function(object){ standardGeneric("bias") })
 ##' @examples
 ##' y <- rnormmix(2000, c(0.9, 0, 1, 0, 4, 1))
 ##' ##nbins = 100 to speed up the calculations
-##' bc <- bacon(y, nbins=100) 
+##' bc <- bacon(y, nbins=100)
 ##' head(tstat(bc))
 setGeneric("tstat", function(object, corrected=TRUE){ standardGeneric("tstat") })
 
@@ -143,10 +143,11 @@ setGeneric("se", function(object, corrected=TRUE){ standardGeneric("se") })
 ##' @return plot of the Gibbs Sampler traces
 ##' @seealso \code{\link{bacon}}
 ##' @exportMethod traces
+##' @importFrom graphics abline curve hist lines par points
 ##' @examples
 ##' y <- rnormmix(2000, c(0.9, 0, 1, 0, 4, 1))
 ##' ##nbins = 100 to speed up the calculations
-##' bc <- bacon(y, nbins=100) 
+##' bc <- bacon(y, nbins=100)
 ##' traces(bc)
 setGeneric("traces", function(object, burnin=TRUE, index=1){ standardGeneric("traces") })
 
@@ -167,13 +168,13 @@ setGeneric("traces", function(object, burnin=TRUE, index=1){ standardGeneric("tr
 ##' @examples
 ##' y <- rnormmix(2000, c(0.9, 0, 1, 0, 4, 1))
 ##' ##nbins = 100 to speed up the calculations
-##' bc <- bacon(y, nbins=100) 
+##' bc <- bacon(y, nbins=100)
 ##' posteriors(bc)
 setGeneric("posteriors", function(object,
                                   thetas = c("sigma.0", "p.0"), index = 1,
                                   alphas=c(0.95, 0.9, 0.75), xlab="", ylab="", ...){
-    standardGeneric("posteriors")
-})
+               standardGeneric("posteriors")
+           })
 
 ##' Method to plot mixture fit
 ##' @name fit
@@ -181,13 +182,13 @@ setGeneric("posteriors", function(object,
 ##' @param object 'bacon'-object
 ##' @param index if multiple sets of test-statsistics where provided
 ##' @param ... additional plotting parameters
-##' @return plot of the Gibbs Sampler mixture fit 
+##' @return plot of the Gibbs Sampler mixture fit
 ##' @seealso \code{\link{bacon}}
 ##' @exportMethod fit
 ##' @examples
 ##' y <- rnormmix(2000, c(0.9, 0, 1, 0, 4, 1))
 ##' ##nbins = 100 to speed up the calculations
-##' bc <- bacon(y, nbins=100) 
+##' bc <- bacon(y, nbins=100)
 ##' fit(bc)
 setGeneric("fit", function(object, index=1, ...){ standardGeneric("fit") })
 
@@ -201,11 +202,37 @@ setGeneric("fit", function(object, index=1, ...){ standardGeneric("fit") })
 ##' @param object 'bacon'-object
 ##' @param corrected optional return uncorrected
 ##' @param ... additional arguments
-##' @return list of fixed-effect meta analysis output
+##' @return object of class 'bacon' with added fixed-effect meta-analysis
+##' test-statistics, effect-sizes and standard-errors
 ##' @import stats
 ##' @seealso \code{\link{bacon}}
 ##' @exportMethod meta
+##' @examples
+##' es <- replicate(6, rnormmix(2000, c(0.9, 0, 1, 0, 4, 1)))
+##' se <- replicate(6, 0.8*sqrt(4/rchisq(2000,df=4)))
+##' bc <- bacon(NULL, es, se)
+##' mbc <- meta(bc)
 setGeneric("meta", function(object, corrected=TRUE, ...){ standardGeneric("meta") })
+
+##' Extract top features after meta analysis
+##'
+##' @name topTable
+##' @rdname topTable-methods
+##' @title topTable
+##' @param object 'bacon'-object
+##' @param number return specified number of top features, n=-1 return all features
+##' @param adjust.method P-value multiple testing adjustment method default bonferroni
+##' @param sort.by order results by pval or eff.size
+##' @return table with top features
+##' @seealso \code{\link{bacon}}
+##' @exportMethod topTable
+##' @examples
+##' es <- replicate(6, rnormmix(2000, c(0.9, 0, 1, 0, 4, 1)))
+##' se <- replicate(6, 0.8*sqrt(4/rchisq(2000,df=4)))
+##' bc <- bacon(NULL, es, se)
+##' mbc <- meta(bc)
+##' topTable(mbc)
+setGeneric("topTable", function(object, number=10, adjust.method="bonf", sort.by=c("pval", "eff.size")){ standardGeneric("topTable") })
 
 setMethod("initialize", "Bacon",
           function(.Object, teststatistics, effectsizes, standarderrors, niter, nburnin, priors) {
@@ -226,16 +253,12 @@ setMethod("initialize", "Bacon",
 
               .Object@estimates <- matrix(nrow=ncol(.Object@teststatistics), ncol=9,
                                           dimnames=list(colnames(.Object@teststatistics),
-                                                        paste0(rep(c("p.", "mu.", "sigma."), each=3), 0:2)))
+                                              paste0(rep(c("p.", "mu.", "sigma."), each=3), 0:2)))
               .Object@traces <- array(dim=c(niter, 9, ncol(.Object@teststatistics)),
                                       dimnames=list(NULL,
-                                                    paste0(rep(c("p.", "mu.", "sigma."), each=3), 0:2),
-                                                    colnames(.Object@teststatistics)))
+                                          paste0(rep(c("p.", "mu.", "sigma."), each=3), 0:2),
+                                          colnames(.Object@teststatistics)))
 
-               ##TODO is there a better approach
-              .Object@teststatistics[.Object@teststatistics > 16] <- 16
-              .Object@teststatistics[.Object@teststatistics < -16] <- -16
-              
               .Object@niter <- niter
               .Object@nburnin <- nburnin
               .Object@priors <- priors
@@ -243,23 +266,23 @@ setMethod("initialize", "Bacon",
           })
 
 setMethod("show", "Bacon", function (object) {
-    cat(sprintf("%s-object containing %s set(s) of %s test-statistics.\n",
-                class(object),
-                ncol(tstat(object)),
-                nrow(tstat(object))))
+              cat(sprintf("%s-object containing %s set(s) of %s test-statistics.\n",
+                          class(object),
+                          ncol(tstat(object)),
+                          nrow(tstat(object))))
 
-    cat(sprintf("...estimated bias: %s.\n",
-                paste(signif(bias(object), 2), collapse=",")))
+              cat(sprintf("...estimated bias: %s.\n",
+                          paste(signif(bias(object), 2), collapse=",")))
 
-    cat(sprintf("...estimated inflation: %s.\n\n",
-                paste(signif(inflation(object), 2), collapse=",")))
+              cat(sprintf("...estimated inflation: %s.\n\n",
+                          paste(signif(inflation(object), 2), collapse=",")))
 
-    cat(sprintf("Emprical null estimates are based on %s iterations with a burnin-period of %s.\n",
-                object@niter,
-                object@nburnin))
+              cat(sprintf("Emprical null estimates are based on %s iterations with a burnin-period of %s.\n",
+                          object@niter,
+                          object@nburnin))
 
-    ##maybe add cat(sprintf("...prior parameters...\n"))
-})
+              ##maybe add cat(sprintf("...prior parameters...\n"))
+          })
 
 
 n2mfcol <- function(n){
@@ -277,42 +300,59 @@ n2mfcol <- function(n){
            stop("Too many sets of statistics to visualize nicely!"))
 }
 
-.hist <- function(object, ...) {
-    data <- tstat(object, corrected=FALSE)
+.hist <- function(object) {
+ 
     mu <- bias(object)
     sigma <- inflation(object)
-    nc <- ncol(data)
-    op <- par(mfcol=n2mfcol(nc), mar=c(5,4,2,2))
-    on.exit(op)
-    x <- NULL; rm(x); ##trick R CMD check to prevent 'no visible binding for global variable "x"'
-    for(i in 1:nc) {
-        hist(data[,i], freq=FALSE, ...)
-        curve(dnorm(x, 0, 1), add=TRUE, lwd=1, lty=1)
-        curve(dnorm(x, mu[i], sigma[i]), add=TRUE, lwd=2, lty=2, col=2)
-    }
+
+    tstats <- tstat(object, corrected=FALSE)
+    stdnorm <- apply(tstats, 2, dnorm, mean=0, sd=1)
+    empnull <- 0*stdnorm
+    for(i in 1:ncol(tstats)) empnull[,i] <- dnorm(tstats[,i], mean=mu[i], sd=sigma[i])
+    if(is.null(colnames(tstats))) colnames(tstats) <- LETTERS[1:ncol(tstats)]
+    
+    data <- data.frame(tstats = as.vector(tstats),
+                       column = rep(colnames(tstats), each=nrow(tstats)),
+                       stdnorm = as.vector(stdnorm),
+                       empnull = as.vector(empnull))
+    
+    nrow <- n2mfcol(nlevels(factor(data$column)))[1]
+    ncol <- n2mfcol(nlevels(factor(data$column)))[2]
+
+    gp <- ggplot(data, aes(x = tstats))
+    gp <- gp + geom_histogram(aes(y = ..density..), colour = "grey", fill = "grey")
+    gp <- gp + facet_wrap(~column, nrow=nrow, ncol=ncol)
+    gp <- gp + xlim(quantile(data$tstats, prob=c(0.01, 0.99))) + xlab("test-statistics")
+    gp <- gp + geom_line(aes(y = stdnorm), col=1)
+    gp <- gp + geom_line(aes(y = empnull), col=2)
+    gp
 }
 
-.qq <- function(object, ...){
-    nr <- nrow(pval(object))
-    exp <- rexp(nr, rate=log(10))
-    obs <- -log10(pval(object))
-    obs <- apply(obs, 2, sort)
-    matplot(sort(exp), obs, ...)
-    invisible(list(x=sort(exp)))
+.qq <- function(object){
+    pvalues  <- pval(object, corrected=FALSE)
+    if(is.null(colnames(pvalues))) colnames(pvalues) <- LETTERS[1:ncol(pvalues)]
+    data <- data.frame(pvalues = as.vector(pvalues),
+                       column = rep(colnames(pvalues), nrow(pvalues)))
+    
+    gp <- ggplot(data, aes(sample=-log10(pvalues), colour=column))
+    gp <- gp + stat_qq(distribution=stats::qexp, dparams=list(rate=1/log10(exp(1))))
+    gp <- gp + xlab(expression(paste("Expected -log"[10], plain(P))))
+    gp <- gp + ylab(expression(paste("Observed -log"[10], plain(P))))
+    gp <- gp + geom_abline(slope=1, intercept=0)
+    gp
 }
 
-##' simple plot function for 'bacon'-object
-##' @title plot
+##' simple ggplot2 plotting function for 'bacon'-object
+##' @title plot hist or qq
 ##' @param x 'bacon'-object
 ##' @param y NULL
 ##' @param type hist or qq
-##' @param ... additional plotting parameters
-##' @return either qq-plot of P-values or histogram of test-statistics
+##' @return either qq-plot of P-values or histogram of Test-statistics
 ##' @export
-##' @import graphics
-setMethod("plot", "Bacon", function(x, y, type=c("hist", "qq"), ...) {
-    type <- match.arg(type)
-    switch(type,
-           hist = .hist(x, ...),
-           qq = .qq(x, ...))
-})
+##' @import ggplot2
+setMethod("plot", "Bacon", function(x, y, type=c("hist", "qq")) {
+              type <- match.arg(type)
+              switch(type,
+                     hist = .hist(x),
+                     qq = .qq(x))
+          })

@@ -18,7 +18,8 @@ meta(object, corrected = TRUE, ...)
 \item{...}{additional arguments}
 }
 \value{
-list of fixed-effect meta analysis output
+object of class 'bacon' with added fixed-effect meta-analysis
+test-statistics, effect-sizes and standard-errors
 }
 \description{
 Perform fixed meta-analysis using inflation and bias corrected
@@ -26,6 +27,12 @@ effect-sizes and standard errors
 }
 \details{
 TODO maybe add idea's from http://www.netstorm.be/home/meta_analysis#metaAnalysisU
+}
+\examples{
+es <- replicate(6, rnormmix(2000, c(0.9, 0, 1, 0, 4, 1)))
+se <- replicate(6, 0.8*sqrt(4/rchisq(2000,df=4)))
+bc <- bacon(NULL, es, se)
+mbc <- meta(bc)
 }
 \seealso{
 \code{\link{bacon}}

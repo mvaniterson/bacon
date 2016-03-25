@@ -1,5 +1,7 @@
 .bacon <- function(i, object, niter, nbins, level, verbose, priors){
 
+    ##TODO add some kind of trimming?
+    
     tstats <- tstat(object)[,i]
     medy <- median(tstats)
     mady <- mad(tstats)

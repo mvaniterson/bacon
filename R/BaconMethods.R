@@ -63,7 +63,7 @@ setMethod("se","Bacon", function(object, corrected){
     if(!corrected | any(is.na(estimates(object))))
         standarderrors <- object@standarderrors
     else
-        standarderrors <- t(t(object@standarderrors)*inflation(object))   
+        standarderrors <- t(t(object@standarderrors)*inflation(object))
     return(standarderrors)
 })
 
@@ -126,11 +126,61 @@ setMethod("meta", "Bacon",function(object, corrected=TRUE, ...){
     V <- 1/rowSums(W)
     TS <- rowSums(ES*W)*V
     Z <- TS/sqrt(V)
-    P <- 2*pnorm(-abs(Z))
 
-    Q <- rowSums((ES - TS)^2*W)
-    Qc <- qchisq(0.95, df= ncol(ES)-1)
-    Qp <- 1 - pchisq(Q, df= ncol(ES)-1)
+    ##TODO maybe add more from:
+    ##http://www.netstorm.be/home/meta_analysis#metaAnalysisU
+    ##Q <- rowSums((ES - TS)^2*W)
+    ##Qc <- qchisq(0.95, df= ncol(ES)-1)
+    ##Qp <- 1 - pchisq(Q, df= ncol(ES)-1)
+    ##P <- 2*pnorm(-abs(Z))
 
-    invisible(list(pval=P, tstat=Z, es=TS, se=sqrt(V), Q=Q, Qt=Qc, Qp=Qp))
+    object@teststatistics <- cbind(object@teststatistics, meta=Z)
+    object@effectsizes <- cbind(object@effectsizes, meta=TS)
+    object@standarderrors <- cbind(object@standarderrors, meta=sqrt(V))
+    object@estimates <- rbind(object@estimates, meta=c(NA,NA,NA,0, NA, NA, 1, NA, NA))
+    invisible(object)
 })
+
+##' @rdname topTable-methods
+##' @aliases topTable
+setMethod("topTable", "Bacon", function(object,
+                                        number=10,
+                                        adjust.method="bonf",
+                                        sort.by=c("pval", "eff.size")){
+
+    sort.by <- match.arg(sort.by)
+
+    pv <- pval(object)
+    n <- ncol(pv)
+    padj <- p.adjust(pv[,n], method=adjust.method)
+    tst <- tstat(object)
+    eff <- es(object)
+    std <- se(object)
+
+    data <- cbind(eff[, -n], std[, -n], pv[, -n], tst[,-n])
+    colnames(data) <- paste(rep(c("eff.size", "std.err", "pval", "tstat"), each=n-1),
+                            colnames(tst)[-n], sep=".")
+
+    ##reorder columns cohorts together
+    data <- data[, order(gsub(".*\\.", "", colnames(data)))]
+         
+    meta <- cbind(eff[,n], std[,n], padj, pv[,n], tst[,n])
+    colnames(meta) <- paste(c("eff.size", "std.err", "pval.adj", "pval.org", "tstat"),
+                            "meta", sep=".")
+
+     if(number==-1)
+         number <- nrow(pv)
+    
+    if(sort.by=="pval")
+        topId <- order(pv[,n])[1:number]
+    else if(sort.by=="eff.size")
+        topId <- order(eff[,n])[1:number]
+
+    tt <- cbind(meta[topId,], data[topId,])
+    tt <- as.matrix(tt)
+    colnames(tt) <- c(colnames(meta), colnames(data))               
+    rownames(tt) <- rownames(pv)[topId]
+    invisible(tt)
+})
+
+
