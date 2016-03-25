@@ -6,7 +6,7 @@ Controlling bias and inflation in association studies using the empirical null d
 
     ## The following objects are masked from 'package:rmarkdown':
     ## 
-    ##     html_document, output_format, pdf_document
+    ##     html_document, md_document, output_format, pdf_document
 
 <script type="text/javascript">
 document.addEventListener("DOMContentLoaded", function() {
@@ -21,20 +21,20 @@ document.addEventListener("DOMContentLoaded", function() {
       links[i].target = '_blank';
 });
 </script>
-**Package**: *[bacon](http://bioconductor.org/packages/release/bioc/html/bacon.html)*<br /> **Authors**: Maarten van Iterson \[aut, cre\], Erik van Zwet \[ctb\]<br /> **Modified**: Mon Mar 14 08:24:17 2016<br /> **Compiled**: Tue Mar 22 10:38:40 2016
+**Package**: *[bacon](http://bioconductor.org/packages/bacon)*<br /> **Authors**: Maarten van Iterson \[aut, cre\], Erik van Zwet \[ctb\]<br /> **Modified**: Fri Mar 25 11:54:05 2016<br /> **Compiled**: Fri Mar 25 12:53:56 2016
 
 Introduction
 ============
 
-*[bacon](http://bioconductor.org/packages/release/bioc/html/bacon.html)* can be used to remove inflation and bias often observed in epigenome- and transcriptome-wide association studies(Iterson et al. 2016).
+*[bacon](http://bioconductor.org/packages/bacon)* can be used to remove inflation and bias often observed in epigenome- and transcriptome-wide association studies(Iterson et al. 2016).
 
-To this end *[bacon](http://bioconductor.org/packages/release/bioc/html/bacon.html)* constructs an empirical null distribution using a Gibbs Sampling algorithm by fitting a three-component normal mixture on z-scores. One component is forced, using prior knowledge, to represent the null distribution with mean and standard deviation representing the bias and inflation. The other two components are necessary to capture the amount of true associations present in the data, which we assume unknown but small.
+To this end *[bacon](http://bioconductor.org/packages/bacon)* constructs an empirical null distribution using a Gibbs Sampling algorithm by fitting a three-component normal mixture on z-scores. One component is forced, using prior knowledge, to represent the null distribution with mean and standard deviation representing the bias and inflation. The other two components are necessary to capture the amount of true associations present in the data, which we assume unknown but small.
 
-*[bacon](http://bioconductor.org/packages/release/bioc/html/bacon.html)* provides functionality to inspect the output of the Gibbs Sampling algorithm, i.e., traces, posterior distributions and the mixture fit, are provided. Furthermore, inflation- and bias-corrected test-statistics or P-values are extracted easily. In addition, functionality for performing fixed-effect meta-analysis are provided.
+*[bacon](http://bioconductor.org/packages/bacon)* provides functionality to inspect the output of the Gibbs Sampling algorithm, i.e., traces, posterior distributions and the mixture fit, are provided. Furthermore, inflation- and bias-corrected test-statistics or P-values are extracted easily. In addition, functionality for performing fixed-effect meta-analysis are provided.
 
 The function `bacon` requires a vector or a matrix of z-scores, e.g., those extracted from association analyses using a linear regression approach. For fixed-effect meta-analysis a matrix of effect-sizes and standard errors is required.
 
-The vignette illustrates the use of *[bacon](http://bioconductor.org/packages/release/bioc/html/bacon.html)* using simulated z-scores, effect-sizes and standard errors to avoid long runtimes. If multiple sets of test-statisics or effect-sizes and standard errors are provided, the Gibbs Sampler Algorithm can be executed on multiple nodes to reduce computation time using functionality provide by *[BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html)*-package.
+The vignette illustrates the use of *[bacon](http://bioconductor.org/packages/bacon)* using simulated z-scores, effect-sizes and standard errors to avoid long runtimes. If multiple sets of test-statisics or effect-sizes and standard errors are provided, the Gibbs Sampler Algorithm can be executed on multiple nodes to reduce computation time using functionality provide by *[BiocParallel](http://bioconductor.org/packages/BiocParallel)*-package.
 
 One set of test-statistics
 ==========================
@@ -128,7 +128,7 @@ Multiple sets of test-statistics
 
 Matrices containing \(2000\times6\) effect-sizes and standard errors are generated to simulated data for a fixed-effect meta-analyses.
 
-By default the function `bacon` detects the number of cores/nodes registered, as described in the *[BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html)*, to perform bacon in parallel. To run the vignette in general we set it here for convenience to 1 node.
+By default the function `bacon` detects the number of cores/nodes registered, as described in the *[BiocParallel](http://bioconductor.org/packages/BiocParallel)*, to perform bacon in parallel. To run the vignette in general we set it here for convenience to 1 node.
 
 ``` r
 set.seed(12345)
@@ -396,9 +396,9 @@ plot(bcm, type="qq")
 Session Info
 ============
 
-    ## R version 3.2.4 (2016-03-10)
+    ## R Under development (unstable) (2016-03-21 r70361)
     ## Platform: x86_64-pc-linux-gnu (64-bit)
-    ## Running under: Ubuntu 14.04.3 LTS
+    ## Running under: Ubuntu 14.04.4 LTS
     ## 
     ## locale:
     ##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -412,20 +412,17 @@ Session Info
     ## [1] stats     graphics  grDevices utils     datasets  methods   base     
     ## 
     ## other attached packages:
-    ## [1] BiocStyle_1.8.0    bacon_0.99.4       ellipse_0.3-8     
-    ## [4] BiocParallel_1.4.3 rmarkdown_0.9.5   
+    ## [1] BiocStyle_1.9.5     bacon_0.99.5        ellipse_0.3-8      
+    ## [4] BiocParallel_1.5.20 ggplot2_2.1.0       rmarkdown_0.9.5    
     ## 
     ## loaded via a namespace (and not attached):
-    ##  [1] Rcpp_0.12.3          knitr_1.12.3         magrittr_1.5        
-    ##  [4] munsell_0.4.3        colorspace_1.2-6     stringr_1.0.0       
-    ##  [7] plyr_1.8.3           tools_3.2.4          parallel_3.2.4      
-    ## [10] grid_3.2.4           gtable_0.2.0         lambda.r_1.1.7      
-    ## [13] futile.logger_1.4.1  htmltools_0.3.5      yaml_2.1.13         
-    ## [16] digest_0.6.9         ggplot2_2.1.0        formatR_1.3         
-    ## [19] futile.options_1.0.0 evaluate_0.8.3       labeling_0.3        
-    ## [22] stringi_1.0-1        scales_0.4.0
+    ##  [1] Rcpp_0.12.3      digest_0.6.9     plyr_1.8.3       grid_3.4.0      
+    ##  [5] gtable_0.2.0     formatR_1.3      magrittr_1.5     evaluate_0.8.3  
+    ##  [9] scales_0.4.0     stringi_1.0-1    labeling_0.3     tools_3.4.0     
+    ## [13] stringr_1.0.0    munsell_0.4.3    parallel_3.4.0   yaml_2.1.13     
+    ## [17] colorspace_1.2-6 htmltools_0.3.5  knitr_1.12.3
 
 References
 ==========
 
-Iterson, M van, E van Zwet, P Slagboom, and B.T Heijmans. 2016. “Controlling Inflation and Bias in Epigenome- and Transcriptome-Wide Association Studies Using Empirical Calibration.” *Manuscript in Preparation*.
+Iterson, M van, E van Zwet, P Slagboom, and B.T Heijmans. 2016. “Controlling Bias and Inflation in Association Studies Using the Empirical Null Distribution.” *Manuscript in Preparation*.
