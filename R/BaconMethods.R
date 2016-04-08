@@ -20,7 +20,7 @@ setMethod("bias","Bacon", function(object){ return(object@estimates[,4]) })
 ##' @rdname tstat-methods
 ##' @aliases tstat
 setMethod("tstat","Bacon", function(object, corrected){
-    if(!corrected | any(is.na(estimates(object))))
+    if(!corrected | any(is.na(bias(object))) | any(is.na(inflation(object))))
         teststatistics <- object@teststatistics
     else {
         teststatistics <- t(t(object@teststatistics) - bias(object))
@@ -32,7 +32,7 @@ setMethod("tstat","Bacon", function(object, corrected){
 ##' @rdname pval-methods
 ##' @aliases pval
 setMethod("pval","Bacon", function(object, corrected){
-    if(!corrected | any(is.na(estimates(object))))
+    if(!corrected | any(is.na(bias(object))) | any(is.na(inflation(object))))
         pvalues <- 2*pnorm(-abs(object@teststatistics))
     else {
         teststatistics <- t(t(object@teststatistics) - bias(object))
@@ -47,7 +47,7 @@ setMethod("pval","Bacon", function(object, corrected){
 setMethod("es","Bacon", function(object, corrected){
     if(nrow(object@effectsizes) == 1)
         stop("Effect-sizes not provided!")
-    if(!corrected | any(is.na(estimates(object))))
+    if(!corrected | any(is.na(bias(object))) | any(is.na(inflation(object))))
         effectsizes <- object@effectsizes
     else
         effectsizes <- object@effectsizes - t(t(object@standarderrors)*bias(object))
@@ -60,7 +60,7 @@ setMethod("se","Bacon", function(object, corrected){
     if(nrow(object@standarderrors) == 1)
         stop("Standard errors not provided!")
 
-    if(!corrected | any(is.na(estimates(object))))
+    if(!corrected |  any(is.na(bias(object))) | any(is.na(inflation(object))))
         standarderrors <- object@standarderrors
     else
         standarderrors <- t(t(object@standarderrors)*inflation(object))

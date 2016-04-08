@@ -1,4 +1,4 @@
-.bacon <- function(i, object, niter, nbins, level, verbose, priors){
+.bacon <- function(i, object, niter, nbins, trim, level, verbose, priors){
 
     ##TODO add some kind of trimming?
     
@@ -13,7 +13,9 @@
         message("Use fast random weighted sampling...")
     
     if(!is.null(nbins)){
-        q <- range(tstats)
+        ##q <- range(tstats) ##sensitive to outlying values
+        q <- quantile(tstats, prob=c(1 - trim, trim))
+        tstats <- tstats[tstats > q[1] & tstats < q[2]]
         breaks <- seq(q[1], q[2], length = nbins + 1)
         x <- breaks[-c(nbins+1)] + 0.5*(q[2] - q[1])/(nbins) #identical to h$mids
         h <- hist(tstats, breaks = breaks, plot=FALSE)
@@ -64,6 +66,7 @@
 ##' @param niter number of iterations
 ##' @param nburnin length of the burnin period
 ##' @param nbins default 1000 else bin test-statistics
+##' @param trim default 0.999 trimming test-statistics 
 ##' @param level significance leve used to determine prop. null for
 ##'     starting values
 ##' @param verbose default FALSE
@@ -110,7 +113,7 @@
 ##' @importFrom BiocParallel bplapply bpworkers bpparam
 ##' @useDynLib bacon
 bacon <- function(teststatistics=NULL, effectsizes=NULL, standarderrors=NULL,
-                  niter=5000L, nburnin = 2000L, nbins=1000, level=0.05, verbose=FALSE,
+                  niter=5000L, nburnin = 2000L, nbins=1000, trim =0.999, level=0.05, verbose=FALSE,
                   priors = list(sigma = list(alpha = 1.28,
                                              beta = 0.36), ##original uses 0.36*mad(teststatistics)
                                 mu = list(lambda = c(0.0, 3.0, -3.0),
@@ -131,16 +134,16 @@ bacon <- function(teststatistics=NULL, effectsizes=NULL, standarderrors=NULL,
         if(nworkers <= 1) {
             message("Did you registered a biocparallel back-end?\n Continuing serial!")
             for(i in 1:ncol(tstat(object)))
-                object@traces[,,i] <- .bacon(i, object, niter, nbins, level, verbose, priors)
+                object@traces[,,i] <- .bacon(i, object, niter, nbins, trim, level, verbose, priors)
         }
         else{
             message("Detected ", nworkers, " workers!\n Running in parallel!")
             ret <- bplapply(1:ncol(tstat(object)), .bacon, object=object,
-                            niter=niter, nbins=nbins, level=level, verbose=verbose, priors=priors)
+                            niter=niter, nbins=nbins, trim=trim, level=level, verbose=verbose, priors=priors)
             object@traces <- simplify2array(ret)
         }
     } else
-        object@traces[,,1] <- .bacon(1, object, niter, nbins, level, verbose, priors)
+        object@traces[,,1] <- .bacon(1, object, niter, nbins, trim=trim, level, verbose, priors)
 
     ##summarize traces
     for(i in 1:ncol(tstat(object)))

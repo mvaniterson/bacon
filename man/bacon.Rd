@@ -5,10 +5,10 @@
 \title{Gibbs sampler}
 \usage{
 bacon(teststatistics = NULL, effectsizes = NULL, standarderrors = NULL,
-  niter = 5000L, nburnin = 2000L, nbins = 1000, level = 0.05,
-  verbose = FALSE, priors = list(sigma = list(alpha = 1.28, beta = 0.36), mu
-  = list(lambda = c(0, 3, -3), tau = c(1000, 100, 100)), epsilon = list(gamma =
-  c(90, 5, 5))))
+  niter = 5000L, nburnin = 2000L, nbins = 1000, trim = 0.999,
+  level = 0.05, verbose = FALSE, priors = list(sigma = list(alpha = 1.28,
+  beta = 0.36), mu = list(lambda = c(0, 3, -3), tau = c(1000, 100, 100)),
+  epsilon = list(gamma = c(90, 5, 5))))
 }
 \arguments{
 \item{teststatistics}{numeric vector or matrix of test-statistics}
@@ -22,6 +22,8 @@ bacon(teststatistics = NULL, effectsizes = NULL, standarderrors = NULL,
 \item{nburnin}{length of the burnin period}
 
 \item{nbins}{default 1000 else bin test-statistics}
+
+\item{trim}{default 0.999 trimming test-statistics}
 
 \item{level}{significance leve used to determine prop. null for
 starting values}
