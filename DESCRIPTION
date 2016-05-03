@@ -2,7 +2,7 @@ Package: bacon
 Type: Package
 Title: Controlling bias and inflation in association studies using the
         empirical null distribution
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: c(person("Maarten", "van Iterson",
         email="mviterson@gmail.com", role="cre"), person("Erik", "van
         Zwet", role="ctb"))
