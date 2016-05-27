@@ -150,10 +150,16 @@ setMethod("topTable", "Bacon", function(object,
 
     sort.by <- match.arg(sort.by)
 
+    ##only return top table after meta-analysis has been performed
+    if(!grepl("meta", colnames(pv)))
+        stop("First run fixed-effect meta-analysis using the 'meta'-function!")
+
+
     pv <- pval(object)
     n <- ncol(pv)
     padj <- p.adjust(pv[,n], method=adjust.method)
     tst <- tstat(object)
+
     eff <- es(object)
     std <- se(object)
 
@@ -163,24 +169,25 @@ setMethod("topTable", "Bacon", function(object,
 
     ##reorder columns cohorts together
     data <- data[, order(gsub(".*\\.", "", colnames(data)))]
-         
+
     meta <- cbind(eff[,n], std[,n], padj, pv[,n], tst[,n])
     colnames(meta) <- paste(c("eff.size", "std.err", "pval.adj", "pval.org", "tstat"),
                             "meta", sep=".")
 
-     if(number==-1)
-         number <- nrow(pv)
-    
+    if(number==-1)
+        number <- nrow(pv)
+
     if(sort.by=="pval")
         topId <- order(pv[,n])[1:number]
     else if(sort.by=="eff.size")
         topId <- order(eff[,n])[1:number]
 
     tt <- cbind(meta[topId,], data[topId,])
+
     tt <- as.matrix(tt)
-    colnames(tt) <- c(colnames(meta), colnames(data))               
+    colnames(tt) <- c(colnames(meta), colnames(data))
+
+
     rownames(tt) <- rownames(pv)[topId]
     invisible(tt)
 })
-
-
