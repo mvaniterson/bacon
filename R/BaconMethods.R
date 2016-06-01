@@ -149,17 +149,16 @@ setMethod("topTable", "Bacon", function(object,
                                         sort.by=c("pval", "eff.size")){
 
     sort.by <- match.arg(sort.by)
-
-    ##only return top table after meta-analysis has been performed
-    if(!grepl("meta", colnames(pv)))
-        stop("First run fixed-effect meta-analysis using the 'meta'-function!")
-
-
-    pv <- pval(object)
+   
+    pv <- pval(object)   
     n <- ncol(pv)
     padj <- p.adjust(pv[,n], method=adjust.method)
     tst <- tstat(object)
 
+    ##only return top table after meta-analysis has been performed
+    if(!any(grepl("meta", colnames(pv))))
+        stop("First run fixed-effect meta-analysis using the 'meta'-function!")
+    
     eff <- es(object)
     std <- se(object)
 
