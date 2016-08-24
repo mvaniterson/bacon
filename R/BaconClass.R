@@ -332,7 +332,7 @@ n2mfcol <- function(n){
     pvalues  <- pval(object, corrected=FALSE)
     if(is.null(colnames(pvalues))) colnames(pvalues) <- LETTERS[1:ncol(pvalues)]
     data <- data.frame(pvalues = as.vector(pvalues),
-                       column = rep(colnames(pvalues), nrow(pvalues)))
+                       column = rep(colnames(pvalues), each=nrow(pvalues)))
     
     gp <- ggplot(data, aes(sample=-log10(pvalues), colour=column))
     gp <- gp + stat_qq(distribution=stats::qexp, dparams=list(rate=1/log10(exp(1))))
