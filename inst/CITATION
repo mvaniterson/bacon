@@ -1,8 +1,11 @@
-citEntry(
-  entry="article",	
-  title="Controlling bias and inflation in epigenome- and transcriptome-wide association studies using the empirical null distribution",
-  author="van Iterson, Maarten M. and van Zwet, Erik W. and , and Slagboom, P. Eline and Heijmans, Bastiaan T.",
-  journal="bioRxiv",
-  year=2016,
-  textVersion="van Iterson, Maarten M. and van Zwet, Erik W. and , and Slagboom, P. Eline and Heijmans, Bastiaan T. (2016) Controlling bias and inflation in epigenome- and transcriptome-wide association studies using the empirical null distribution. bioRxiv." 
+bibentry(
+    bibtype="Article",
+    author="van Iterson, M. and van Zwet, E.W. and Heijmans, B.T.",
+    title="Controlling bias and inflation in epigenome- and transcriptome-wide association studies using the empirical null distribution.",
+    journal="Genome Biology",
+    year="2017",
+    volume="18",
+    number="1",
+    pages="19",
+    month="Jan"
 )
