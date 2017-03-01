@@ -31,4 +31,3 @@ plotnormmix(x, theta)
 \author{
 mvaniterson
 }
-

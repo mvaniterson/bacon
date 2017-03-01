@@ -4,11 +4,12 @@
 \name{fit}
 \alias{fit}
 \alias{fit,Bacon-method}
+\alias{fit}
 \title{Method to plot mixture fit}
 \usage{
 fit(object, index = 1, ...)
 
-\S4method{fit}{Bacon}(object, index = 1, ...)
+\S4method{fit}{Bacon}(object, index, col = "grey75", border = "grey75", ...)
 }
 \arguments{
 \item{object}{'bacon'-object}
@@ -16,6 +17,10 @@ fit(object, index = 1, ...)
 \item{index}{if multiple sets of test-statsistics where provided}
 
 \item{...}{additional plotting parameters}
+
+\item{col}{line color default 'grey75'}
+
+\item{border}{border color 'grey75'}
 }
 \value{
 plot of the Gibbs Sampler mixture fit
@@ -32,4 +37,3 @@ fit(bc)
 \seealso{
 \code{\link{bacon}}
 }
-

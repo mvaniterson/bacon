@@ -4,12 +4,14 @@
 \alias{rnormmix}
 \title{sample from a normal mixture}
 \usage{
-rnormmix(n, theta)
+rnormmix(n, theta, shuffle = TRUE)
 }
 \arguments{
 \item{n}{size}
 
 \item{theta}{parameters}
+
+\item{shuffle}{shuffle return vectors or keep nulls and alternative ordered (null, alts)}
 }
 \value{
 n samples from a normal mixture with parameters theta
@@ -28,4 +30,3 @@ x <- rnormmix(n, theta)
 \author{
 mvaniterson
 }
-

@@ -4,6 +4,7 @@
 \name{pval}
 \alias{pval}
 \alias{pval,Bacon-method}
+\alias{pval}
 \title{Method to extract inflation- and bias-corrected P-values}
 \usage{
 pval(object, corrected = TRUE)
@@ -29,4 +30,3 @@ head(pval(bc))
 \seealso{
 \code{\link{bacon}}
 }
-

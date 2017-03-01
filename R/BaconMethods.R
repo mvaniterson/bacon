@@ -113,7 +113,7 @@ setMethod("posteriors", "Bacon", function(object, thetas, index, alphas, xlab, y
 
 ##' @rdname fit-methods
 ##' @aliases fit
-setMethod("fit", "Bacon", function(object, index,...){
+setMethod("fit", "Bacon", function(object, index, col="grey75", border="grey75", ...){
     plotnormmix(tstat(object, corrected=FALSE)[, index], estimates(object)[index, ], ...)
 })
 

@@ -173,14 +173,16 @@ setGeneric("traces", function(object, burnin=TRUE, index=1){ standardGeneric("tr
 setGeneric("posteriors", function(object,
                                   thetas = c("sigma.0", "p.0"), index = 1,
                                   alphas=c(0.95, 0.9, 0.75), xlab="", ylab="", ...){
-               standardGeneric("posteriors")
-           })
+    standardGeneric("posteriors")
+})
 
 ##' Method to plot mixture fit
 ##' @name fit
 ##' @rdname fit-methods
 ##' @param object 'bacon'-object
 ##' @param index if multiple sets of test-statsistics where provided
+##' @param col line color default 'grey75'
+##' @param border  border color 'grey75'
 ##' @param ... additional plotting parameters
 ##' @return plot of the Gibbs Sampler mixture fit
 ##' @seealso \code{\link{bacon}}
@@ -253,11 +255,11 @@ setMethod("initialize", "Bacon",
 
               .Object@estimates <- matrix(nrow=ncol(.Object@teststatistics), ncol=9,
                                           dimnames=list(colnames(.Object@teststatistics),
-                                              paste0(rep(c("p.", "mu.", "sigma."), each=3), 0:2)))
+                                                        paste0(rep(c("p.", "mu.", "sigma."), each=3), 0:2)))
               .Object@traces <- array(dim=c(niter, 9, ncol(.Object@teststatistics)),
                                       dimnames=list(NULL,
-                                          paste0(rep(c("p.", "mu.", "sigma."), each=3), 0:2),
-                                          colnames(.Object@teststatistics)))
+                                                    paste0(rep(c("p.", "mu.", "sigma."), each=3), 0:2),
+                                                    colnames(.Object@teststatistics)))
 
               .Object@niter <- niter
               .Object@nburnin <- nburnin
@@ -266,23 +268,23 @@ setMethod("initialize", "Bacon",
           })
 
 setMethod("show", "Bacon", function (object) {
-              cat(sprintf("%s-object containing %s set(s) of %s test-statistics.\n",
-                          class(object),
-                          ncol(tstat(object)),
-                          nrow(tstat(object))))
+    cat(sprintf("%s-object containing %s set(s) of %s test-statistics.\n",
+                class(object),
+                ncol(tstat(object)),
+                nrow(tstat(object))))
 
-              cat(sprintf("...estimated bias: %s.\n",
-                          paste(signif(bias(object), 2), collapse=",")))
+    cat(sprintf("...estimated bias: %s.\n",
+                paste(signif(bias(object), 2), collapse=",")))
 
-              cat(sprintf("...estimated inflation: %s.\n\n",
-                          paste(signif(inflation(object), 2), collapse=",")))
+    cat(sprintf("...estimated inflation: %s.\n\n",
+                paste(signif(inflation(object), 2), collapse=",")))
 
-              cat(sprintf("Emprical null estimates are based on %s iterations with a burnin-period of %s.\n",
-                          object@niter,
-                          object@nburnin))
+    cat(sprintf("Empirical null estimates are based on %s iterations with a burnin-period of %s.\n",
+                object@niter,
+                object@nburnin))
 
-              ##maybe add cat(sprintf("...prior parameters...\n"))
-          })
+    ##maybe add cat(sprintf("...prior parameters...\n"))
+})
 
 
 n2mfcol <- function(n){
@@ -300,45 +302,59 @@ n2mfcol <- function(n){
            stop("Too many sets of statistics to visualize nicely!"))
 }
 
-.hist <- function(object) {
- 
+.hist <- function(object, trim, ...) {
+
     mu <- bias(object)
     sigma <- inflation(object)
 
     tstats <- tstat(object, corrected=FALSE)
     stdnorm <- apply(tstats, 2, dnorm, mean=0, sd=1)
     empnull <- 0*stdnorm
+    
     for(i in 1:ncol(tstats)) empnull[,i] <- dnorm(tstats[,i], mean=mu[i], sd=sigma[i])
     if(is.null(colnames(tstats))) colnames(tstats) <- LETTERS[1:ncol(tstats)]
-    
+
     data <- data.frame(tstats = as.vector(tstats),
                        column = rep(colnames(tstats), each=nrow(tstats)),
                        stdnorm = as.vector(stdnorm),
                        empnull = as.vector(empnull))
-    
+
     nrow <- n2mfcol(nlevels(factor(data$column)))[1]
     ncol <- n2mfcol(nlevels(factor(data$column)))[2]
-
-    gp <- ggplot(data, aes(x = tstats))
+   
+    qnts <- quantile(data$tstats, prob=c(trim, 1-trim))
+    data <- data[data$tstat > qnts[1] & data$tstat < qnts[2],]
+    
+    gp <- ggplot(data, aes(x = tstats, ...))
     gp <- gp + geom_histogram(aes(y = ..density..), colour = "grey", fill = "grey")
     gp <- gp + facet_wrap(~column, nrow=nrow, ncol=ncol)
-    gp <- gp + xlim(quantile(data$tstats, prob=c(0.01, 0.99))) + xlab("test-statistics")
-    gp <- gp + geom_line(aes(y = stdnorm), col=1)
-    gp <- gp + geom_line(aes(y = empnull), col=2)
+    gp <- gp + xlab("test-statistics")
+    gp <- gp + geom_line(aes(y = stdnorm), col=1) ##std. norm. black
+    gp <- gp + geom_line(aes(y = empnull), col=2) ##emp. null red
     gp
 }
 
-.qq <- function(object){
+.qq <- function(object, ...){
     pvalues  <- pval(object, corrected=FALSE)
+
     if(is.null(colnames(pvalues))) colnames(pvalues) <- LETTERS[1:ncol(pvalues)]
-    data <- data.frame(pvalues = as.vector(pvalues),
-                       column = rep(colnames(pvalues), each=nrow(pvalues)))
-    
-    gp <- ggplot(data, aes(sample=-log10(pvalues), colour=column))
+
+    d1 <- data.frame(pvalues = as.vector(pvalues),
+                     column = rep(colnames(pvalues), each=nrow(pvalues)),
+                     bacon = "uncorrected")
+
+    d2 <- data.frame(pvalues = as.vector(pval(object, corrected=TRUE)),
+                     column = rep(colnames(pvalues), each=nrow(pvalues)),
+                     bacon = "corrected")
+
+    data <- rbind(d1, d2)
+
+    gp <- ggplot(data, aes(sample=-log10(pvalues), colour=column, ...))
     gp <- gp + stat_qq(distribution=stats::qexp, dparams=list(rate=1/log10(exp(1))))
     gp <- gp + xlab(expression(paste("Expected -log"[10], plain(P))))
     gp <- gp + ylab(expression(paste("Observed -log"[10], plain(P))))
     gp <- gp + geom_abline(slope=1, intercept=0)
+    gp <- gp + facet_wrap(~bacon)
     gp
 }
 
@@ -351,8 +367,8 @@ n2mfcol <- function(n){
 ##' @export
 ##' @import ggplot2
 setMethod("plot", "Bacon", function(x, y, type=c("hist", "qq")) {
-              type <- match.arg(type)
-              switch(type,
-                     hist = .hist(x),
-                     qq = .qq(x))
-          })
+    type <- match.arg(type)
+    switch(type,
+           hist = .hist(x, trim=0.01),
+           qq = .qq(x))
+})

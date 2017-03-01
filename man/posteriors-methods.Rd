@@ -4,6 +4,7 @@
 \name{posteriors}
 \alias{posteriors}
 \alias{posteriors,Bacon-method}
+\alias{posteriors}
 \title{Method to plot posterior distribution}
 \usage{
 posteriors(object, thetas = c("sigma.0", "p.0"), index = 1,
@@ -42,4 +43,3 @@ posteriors(bc)
 \seealso{
 \code{\link{bacon}}
 }
-

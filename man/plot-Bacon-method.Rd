@@ -20,4 +20,3 @@ either qq-plot of P-values or histogram of Test-statistics
 \description{
 simple ggplot2 plotting function for 'bacon'-object
 }
-

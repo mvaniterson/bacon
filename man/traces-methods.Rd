@@ -4,6 +4,7 @@
 \name{traces}
 \alias{traces}
 \alias{traces,Bacon-method}
+\alias{traces}
 \title{Method to plot Gibbs sampling traces}
 \usage{
 traces(object, burnin = TRUE, index = 1)
@@ -32,4 +33,3 @@ traces(bc)
 \seealso{
 \code{\link{bacon}}
 }
-

@@ -30,4 +30,3 @@ curve(dnormmix(x, theta), add=TRUE, lwd=2)
 \author{
 mvaniterson
 }
-

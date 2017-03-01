@@ -74,11 +74,10 @@ head(pval(bc))
 ##extract bias and inflation corrected test-statistics
 head(tstat(bc))
 }
-\author{
-mvaniterson
-}
 \references{
 Implementation is based on a version from Zhihui Liu
     \url{https://macsphere.mcmaster.ca/handle/11375/9368}
 }
-
+\author{
+mvaniterson
+}

@@ -4,6 +4,7 @@
 ##' @title sample from a normal mixture
 ##' @param n size
 ##' @param theta parameters
+##' @param shuffle shuffle return vectors or keep nulls and alternative ordered (null, alts)
 ##' @return n samples from a normal mixture with parameters theta
 ##' @author mvaniterson
 ##' @examples
@@ -11,7 +12,7 @@
 ##' theta <- c(0.8, 0, 1, 0, 4, 1)
 ##' x <- rnormmix(n, theta)
 ##' @export
-rnormmix <- function(n, theta){
+rnormmix <- function(n, theta, shuffle=TRUE){
     epsilon1 <- theta[1]
     mu0 <- theta[2]
     sigma0 <- theta[3]
@@ -23,7 +24,11 @@ rnormmix <- function(n, theta){
     n1 <- sum(U < epsilon1)
     n2 <- sum(U >=  epsilon1)
     mu <- rnorm(n2, mean=mu1, sd=sigma1)
-    sample(c(rnorm(n1, mean=mu0, sd=sigma0), mu + rnorm(n2, mean=0, sd=sigma2)))
+
+    if(shuffle)
+        return(sample(c(rnorm(n1, mean=mu0, sd=sigma0), mu + rnorm(n2, mean=0, sd=sigma2))))
+    else
+        return(c(rnorm(n1, mean=mu0, sd=sigma0), mu + rnorm(n2, mean=0, sd=sigma2)))
 }
 
 ##' density of a k-component normal mixture
@@ -76,5 +81,5 @@ plotnormmix <- function(x, theta, ...) {
     for(k in 1:ncomp) {
         f <- function(x) theta[k]*dnorm(x, mean=theta[k+3], sd=theta[k+6])
         curve(expr=f, add=TRUE, col=k+1, lwd=2)
-    }   
+    }
 }

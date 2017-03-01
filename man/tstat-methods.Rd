@@ -4,6 +4,7 @@
 \name{tstat}
 \alias{tstat}
 \alias{tstat,Bacon-method}
+\alias{tstat}
 \title{Method to extract inflation- and bias-corrected test-statistics}
 \usage{
 tstat(object, corrected = TRUE)
@@ -30,4 +31,3 @@ head(tstat(bc))
 \seealso{
 \code{\link{bacon}}
 }
-

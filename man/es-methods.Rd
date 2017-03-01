@@ -4,6 +4,7 @@
 \name{es}
 \alias{es}
 \alias{es,Bacon-method}
+\alias{es}
 \title{Method to extract inflation- and bias-corrected effect-sizes}
 \usage{
 es(object, corrected = TRUE)
@@ -30,4 +31,3 @@ head(es(bc))
 \seealso{
 \code{\link{bacon}}
 }
-

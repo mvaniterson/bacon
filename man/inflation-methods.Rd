@@ -4,6 +4,7 @@
 \name{inflation}
 \alias{inflation}
 \alias{inflation,Bacon-method}
+\alias{inflation}
 \title{Method to extract the estimated inflation from the 'bacon'-object}
 \usage{
 inflation(object)
@@ -28,4 +29,3 @@ inflation(bc)
 \seealso{
 \code{\link{bacon}}
 }
-

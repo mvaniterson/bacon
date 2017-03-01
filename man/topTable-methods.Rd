@@ -4,6 +4,7 @@
 \name{topTable}
 \alias{topTable}
 \alias{topTable,Bacon-method}
+\alias{topTable}
 \title{topTable}
 \usage{
 topTable(object, number = 10, adjust.method = "bonf", sort.by = c("pval",
@@ -37,4 +38,3 @@ topTable(mbc)
 \seealso{
 \code{\link{bacon}}
 }
-

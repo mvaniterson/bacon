@@ -4,6 +4,7 @@
 \name{se}
 \alias{se}
 \alias{se,Bacon-method}
+\alias{se}
 \title{Method to extract inflation- and bias-corrected standard errors}
 \usage{
 se(object, corrected = TRUE)
@@ -30,4 +31,3 @@ head(se(bc))
 \seealso{
 \code{\link{bacon}}
 }
-

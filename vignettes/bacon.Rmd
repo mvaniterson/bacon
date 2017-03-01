@@ -1,29 +1,32 @@
 ---
 title: "Controlling bias and inflation in association studies using the empirical null distribution"
+author: "Maarten van Iterson [aut, cre] and Erik van Zwet [ctb]"
+package: "bacon `r packageVersion('bacon')`"
 output: 
-  BiocStyle::html_document:
-   toc: true
+  BiocStyle::html_document2:
+    number_sections: yes
+    toc_float: true
 bibliography: bacon.bib
 vignette: >
   %\VignetteIndexEntry{Controlling bias and inflation in association studies using the empirical null distribution}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
+
+**modified**: Wed Mar  1 12:56:03 2017
+**compiled**: `r date()`
 
 ```{r style, echo = FALSE, results = 'asis', warning=FALSE}
 suppressPackageStartupMessages(library(bacon))
 BiocStyle::markdown()
+options(digits=3)
 ```
-
-**Package**: `r Biocpkg("bacon")`<br />
-**Authors**: `r packageDescription("bacon")[["Author"]] `<br />
-**Modified**: Fri Mar 25 11:54:05 2016<br />
-**Compiled**: `r date()`
 
 # Introduction #
 
 `r Biocpkg("bacon")` can be used to remove inflation and bias often
 observed in epigenome- and transcriptome-wide association
-studies[@Iterson2016]. 
+studies [@vanIterson2017]. 
 
 To this end `r Biocpkg("bacon")` constructs an empirical null
 distribution using a Gibbs Sampling algorithm by fitting a
@@ -34,38 +37,47 @@ two components are necessary to capture the amount of true
 associations present in the data, which we assume unknown but small.
 
 `r Biocpkg("bacon")` provides functionality to inspect the output of
-the Gibbs Sampling algorithm, i.e., traces, posterior distributions
-and the mixture fit, are provided. Furthermore, inflation- and
-bias-corrected test-statistics or P-values are extracted easily. In
-addition, functionality for performing fixed-effect meta-analysis are
-provided.
+the Gibbs Sampling algorithm, i.e., plots of traces, posterior
+distributions and the mixture fit, are provided. Furthermore,
+inflation- and bias-corrected test-statistics or P-values are
+extracted easily. In addition, functionality for performing
+fixed-effect meta-analysis are provided as well.
 
 The function `bacon` requires a vector or a matrix of z-scores, e.g.,
 those extracted from association analyses using a linear regression
 approach. For fixed-effect meta-analysis a matrix of effect-sizes and
-standard errors is required.
+standard-errors is required.
 
-The vignette illustrates the use of `r Biocpkg("bacon")` using
+This vignette illustrates the use of `r Biocpkg("bacon")` using
 simulated z-scores, effect-sizes and standard errors to avoid long
-runtimes. If multiple sets of test-statisics or effect-sizes and
-standard errors are provided, the Gibbs Sampler Algorithm can be
-executed on multiple nodes to reduce computation time using
-functionality provide by `r Biocpkg("BiocParallel")`-package.
+run-times. If multiple sets of test-statisics or effect-sizes and
+standard-errors are provided, the Gibbs Sampler algorithm can be
+executed in parallel to reduce computation time using functionality
+provide by `r Biocpkg("BiocParallel")`-package.
 
-# One set of test-statistics #
+# A single set of test-statistics #
 
-A vector containing 2000 z-scores is generated from a normal mixture
-distribution 90% of the z-scores were drawn from $\mathcal{N}(0,1)$
-and the remaining z-scores from $\mathcal{N}(\mu,1)$, where $\mu \sim
-\mathcal{N}(4,1)$.
+A vector containing $5000$ z-scores is generated from a normal mixture
+distribution, $90\%$ of the z-scores were drawn from a biased and
+inflated null distribution, $\mathcal{N}(0.2, 1.3)$, and the remaining
+z-scores from $\mathcal{N}(\mu, 1)$, where $\mu \sim \mathcal{N}(4,
+1)$. The `rnormmix`-function provided by `Bacon` generates a vector of
+random test-statistics described above optionally with different
+parameters.
 
-The function `bacon` executes the Gibbs Sampler Algorithm and stores
-all input and output in a `Bacon`-object. Several accessor-functions
-are available to access data contained in the `Bacon`-object.
+```{r, generatedata1}
+y <- rnormmix(5000, c(0.9, 0.2, 1.3, 1, 4, 1))
+```
 
-```{r simulateddata1, message=FALSE}
-set.seed(12345)
-y <- rnormmix(2000, c(0.9, 0, 1, 0, 4, 1))
+The function `bacon` executes the Gibbs Sampler algorithm and stores
+all in- and out-put in an object of class `Bacon`. Several
+accessor-functions are available to access data contained in the
+`Bacon`-object, e.g. for obtaining the estimated parameters of the
+mixture fit or explicitly the bias and inflation. Actually, the latter
+two are the mean and standard deviation of the null component (mu.0
+and sigma.0).
+
+```{r, inspectdata1}
 bc <- bacon(y)
 bc
 estimates(bc)
@@ -74,77 +86,102 @@ bias(bc)
 ```
 
 Several methods are provided to inspect the output of the Gibbs
-Sampler Algorithm, such as traces of all estimates, the posterior
-distributions, provide as a scatter plot between two parameters,
-the actual fit of the three component mixture to the histogram of
-z-scores.
+Sampler algorithm, such as traces-plots of all estimates, plots of
+posterior distributions, provide as a scatter plot between two
+parameters, and the actual fit of the three component mixture to the
+histogram of z-scores.
 
-```{r gsoutput}
+```{r gsoutput1, fig.cap = "Plot of Gibbs Sampling traces. Each panel represent of one the estimated parameters. Default plot shows the burin-in period as well."}
 traces(bc, burnin=FALSE)
+```
+
+```{r gsoutput2, fig.cap = "Gibbs Sampling posterior distributions of two estimated parameters the inflation (sigma 0) and proportion of null features (pi0 0). Posterior plots of the other parameters can be generated by using the `thetas` argument. The ellipical curves corresponding to a 75%, 90% and 95% probability regions for a bivariate normal distribution with mean and covariance estimated form the scatter-plot."}
 posteriors(bc)
+```
+
+```{r gsoutput3, fig.cap = "Fit to the data as estimated using the Gibbs Sampling algorithm. Black line represent to overall fit, red the fit of the null distribution and blue and green the alternatives."}
 fit(bc, n=100)
 ```
 
-There is also a generic plot function that can generate two types of
-plots. A histogram of the z-scores with on top the standard normal
-distribution and the bacon estimated empirical null distribution.
-Or a quantile-quantile plot of the $-log_{10}$ transformed P-values.
+The previous three plots can be use as diagnostic tools to inspect the
+Gibbs sampling process. 
 
-```{r plothist1}
+There is also a generic plot function that can generate two types of
+plots; a histogram of the z-scores and a qq-plot. The histogram of the
+z-scores shows on top the standard normal distribution and the Gibbs
+Sampling estimated empirical null distribution. The quantile-quantile
+plot shows the $-log_{10}$ transformed P-values. Default values are
+raw, not controlled for bias and inflation, z-scores and P-values.
+
+```{r plothist1, fig.cap="Histogram of z-scores. With on top standard normal (black) and estimated empirical null distribution (red)."}
 plot(bc, type="hist")
+```
+
+```{r plotqq1, fig.cap="Quantile-quantile plot of $-log_{10}$ transformed P-values. Left panel using uncorrected P-values and right panel using bacon bias and inflation corrected P-values."}
 plot(bc, type="qq")
 ```
 
 # Multiple sets of test-statistics #
 
-Matrices containing $2000\times6$ effect-sizes and standard errors are
-generated to simulated data for a fixed-effect meta-analyses.
+Matrices containing $5000\times6$ effect-sizes and standard errors are
+generated to simulated data for a fixed-effect meta-analyses. This is
+a toy-example just to illustrate the capabilities of `bacon` in
+handling multiple sets of test-statics.
+
+```{r simulateddata2, message=FALSE}
+set.seed(12345)
+biases <- runif(6, -0.2, 0.2)
+inflations <- runif(6, 1, 1.3)
+es <- matrix(nrow=5000, ncol=6)
+for(i in 1:6)
+    es[,i] <- rnormmix(5000, c(0.9, biases[i], inflations[i], 0, 4, 1), shuffle=FALSE)
+se <- replicate(6, 0.8*sqrt(4/rchisq(5000,df=4)))
+colnames(es) <- colnames(se) <- LETTERS[1:ncol(se)]
+rownames(es) <- rownames(se) <- 1:5000
+head(rownames(es))
+head(colnames(es))
+```
 
 By default the function `bacon` detects the number of cores/nodes
 registered, as described in the `r Biocpkg("BiocParallel")`, to
 perform bacon in parallel. To run the vignette in general we set it
 here for convenience to 1 node.
 
-```{r simulateddata2, message=FALSE}
-set.seed(12345)
-es <- replicate(6, rnormmix(2000, c(0.9, 0, 1, 0, 4, 1)))
-se <- replicate(6, 0.8*sqrt(4/rchisq(2000,df=4)))
-colnames(es) <- colnames(se) <- LETTERS[1:ncol(se)]
-rownames(es) <- rownames(se) <- 1:2000
-head(rownames(es))
-head(colnames(es))
-```
-
 ```{r runbacon}
 library(BiocParallel)
 register(MulticoreParam(1, log=TRUE))
 bc <- bacon(NULL, es, se)
 bc
-estimates(bc)
+knitr::kable(estimates(bc))
 inflation(bc)
 bias(bc)
-head(tstat(bc))
-head(pval(bc))
-head(se(bc))
-head(es(bc))
+knitr::kable(tstat(bc)[1:5,])
+knitr::kable(pval(bc)[1:5,])
+knitr::kable(se(bc)[1:5,])
+knitr::kable(es(bc)[1:5,])
 ```
 
 The accessor-function return as expected matrices of estimates. For
 the plotting functions an additional index of the ith study or z-score
 is required.
 
-```{r traces2}
+```{r gsoutput4, fig.cap = "Plot of Gibbs Sampling traces. Each panel represent of one the estimated parameters. Default plot shows the burin-in period as well."}
 traces(bc, burnin=FALSE, index=3)
-posteriors(bc, index=3)
-fit(bc, index=3, n=100)
-
 ```
 
-```{r plothist2}
+```{r gsoutput5, fig.cap = "Gibbs Sampling posterior distributions of two estimated parameters the inflation (sigma 0) and proportion of null features (pi0 0). Posterior plots of the other parameters can be generated by using the `thetas` argument. The ellipical curves corresponding to a 75%, 90% and 95% probability regions for a bivariate normal distribution with mean and covariance estimated form the scatter-plot."}
+posteriors(bc, index=3)
+```
+
+```{r gsoutput6, fig.cap = "Fit to the data as estimated using the Gibbs Sampling algorithm. Black line represent to overall fit, red the fit of the null distribution and blue and green the alternatives."}
+fit(bc, n=100, index=3)
+```
+
+```{r plothist2, fig.cap="Histogram of z-scores. With on top standard normal (black) and estimated empirical null distribution (red)."}
 plot(bc, type="hist")
 ```
 
-```{r qqplot2}
+```{r plotqq2, fig.cap="Quantile-quantile plot of $-log_{10}$ transformed P-values. Left panel using uncorrected P-values and right panel using bacon bias and inflation corrected P-values."}
 plot(bc, type="qq")
 ```
 
@@ -156,14 +193,20 @@ meta-analysis and the inspection of results.
 ```{r meta}
 bcm <- meta(bc)
 head(pval(bcm))
-plot(bcm, type="qq")
-(topTable(bcm))
+print(topTable(bcm))
 ```
 
-# Session Info
+```{r plotqq3, fig.cap="Quantile-quantile plot of $-log_{10}$ transformed P-values for each cohort and the meta-analysis P-values. Left panel using uncorrected P-values and right panel using bacon bias and inflation corrected P-values."}
+plot(bcm, type="qq")
+```
+
+# Session Info #
+
+Here is the output of `sessionInfo()` on the system on which this
+document was compiled:
+
 ```{r session info, echo=FALSE}
 sessionInfo()
 ```
 
 # References #
-
