@@ -245,8 +245,8 @@ setMethod("initialize", "Bacon",
               else if(is.null(effectsizes) & is.null(standarderrors))
                   stop("Need to provide test-statistics or both effect-sizes and standard errors!")
               else {
-                  .Object@effectsizes <- effectsizes
-                  .Object@standarderrors <- standarderrors
+                  .Object@effectsizes <- as.matrix(effectsizes)
+                  .Object@standarderrors <- as.matrix(standarderrors)
                   .Object@teststatistics <- as.matrix(effectsizes/standarderrors)
               }
 
