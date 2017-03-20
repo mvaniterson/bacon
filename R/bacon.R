@@ -128,15 +128,18 @@ bacon <- function(teststatistics=NULL, effectsizes=NULL, standarderrors=NULL,
                   nburnin = nburnin,
                   priors = priors)
 
+    nset <- ncol(tstat(object))    
     ##run the Gibbs Sampler
     if(ncol(tstat(object)) > 1){
         nworkers <- bpworkers(bpparam())
         if(nworkers <= 1) {
-            message("Did you registered a biocparallel back-end?\n Continuing serial!")
+            if(nset > 1)
+                message("Did you registered a biocparallel back-end?\n Continuing serial!")
             for(i in 1:ncol(tstat(object)))
                 object@traces[,,i] <- .bacon(i, object, niter, nbins, trim, level, verbose, priors)
         }
         else{
+            nworkers <- min(c(nset, nworkers))
             message("Detected ", nworkers, " workers!\n Running in parallel!")
             ret <- bplapply(1:ncol(tstat(object)), .bacon, object=object,
                             niter=niter, nbins=nbins, trim=trim, level=level, verbose=verbose, priors=priors)
