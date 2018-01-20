@@ -3,7 +3,7 @@ title: "Controlling bias and inflation in association studies using the empirica
 author: "Maarten van Iterson [aut, cre] and Erik van Zwet [ctb]"
 package: "bacon `r packageVersion('bacon')`"
 output: 
-  BiocStyle::html_document2:
+  BiocStyle::html_document:
     number_sections: yes
     toc_float: true
 bibliography: bacon.bib
@@ -13,7 +13,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-**modified**: Wed Mar  1 12:56:03 2017
+**modified**: Sat Jan 20 08:18:27 2018
 **compiled**: `r date()`
 
 ```{r style, echo = FALSE, results = 'asis', warning=FALSE}
