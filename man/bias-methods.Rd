@@ -4,7 +4,6 @@
 \name{bias}
 \alias{bias}
 \alias{bias,Bacon-method}
-\alias{bias}
 \title{Method to extract the estimated bias from the 'bacon'-object}
 \usage{
 bias(object)

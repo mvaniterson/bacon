@@ -4,14 +4,14 @@
 \name{posteriors}
 \alias{posteriors}
 \alias{posteriors,Bacon-method}
-\alias{posteriors}
 \title{Method to plot posterior distribution}
 \usage{
 posteriors(object, thetas = c("sigma.0", "p.0"), index = 1,
   alphas = c(0.95, 0.9, 0.75), xlab = "", ylab = "", ...)
 
 \S4method{posteriors}{Bacon}(object, thetas = c("sigma.0", "p.0"),
-  index = 1, alphas = c(0.95, 0.9, 0.75), xlab = "", ylab = "", ...)
+  index = 1, alphas = c(0.95, 0.9, 0.75), xlab = "", ylab = "",
+  ...)
 }
 \arguments{
 \item{object}{'bacon'-object}

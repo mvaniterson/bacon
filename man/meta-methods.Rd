@@ -4,7 +4,6 @@
 \name{meta}
 \alias{meta}
 \alias{meta,Bacon-method}
-\alias{meta}
 \title{fixed meta-analysis}
 \usage{
 meta(object, corrected = TRUE, ...)

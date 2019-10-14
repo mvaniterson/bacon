@@ -4,11 +4,10 @@
 \name{topTable}
 \alias{topTable}
 \alias{topTable,Bacon-method}
-\alias{topTable}
 \title{topTable}
 \usage{
-topTable(object, number = 10, adjust.method = "bonf", sort.by = c("pval",
-  "eff.size"))
+topTable(object, number = 10, adjust.method = "bonf",
+  sort.by = c("pval", "eff.size"))
 
 \S4method{topTable}{Bacon}(object, number = 10, adjust.method = "bonf",
   sort.by = c("pval", "eff.size"))

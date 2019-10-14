@@ -1,8 +1,11 @@
 .bacon <- function(i, object, niter, nbins, trim, level, verbose, priors){
 
     ##TODO add some kind of trimming?
-    
     tstats <- tstat(object)[,i]
+    
+    if (object@na.exclude) 
+        tstats <- tstats[!is.na(tstats)]
+    
     medy <- median(tstats)
     mady <- mad(tstats)
     binned <- !is.null(nbins)
@@ -69,6 +72,7 @@
 ##' @param trim default 0.999 trimming test-statistics 
 ##' @param level significance leve used to determine prop. null for
 ##'     starting values
+##' @param na.exclude see ?na.exclude
 ##' @param verbose default FALSE
 ##' @param priors list of parameters of for the prior distributions
 ##' @return object of class-Bacon
@@ -113,17 +117,20 @@
 ##' @importFrom BiocParallel bplapply bpworkers bpparam
 ##' @useDynLib bacon
 bacon <- function(teststatistics=NULL, effectsizes=NULL, standarderrors=NULL,
-                  niter=5000L, nburnin = 2000L, nbins=1000, trim =0.999, level=0.05, verbose=FALSE,
+                  niter=5000L, nburnin = 2000L, nbins=1000, trim =0.999, level=0.05, 
+                  na.exclude=FALSE, verbose=FALSE,
                   priors = list(sigma = list(alpha = 1.28,
                                              beta = 0.36), ##original uses 0.36*mad(teststatistics)
                                 mu = list(lambda = c(0.0, 3.0, -3.0),
                                           tau = c(1000.0, 100.0, 100.0)),
                                 epsilon = list(gamma = c(90.0, 5.0, 5.0)))){
 
+    
     ##create new Bacon-object
     object <- new("Bacon", teststatistics = teststatistics,
                   effectsizes = effectsizes,
                   standarderrors = standarderrors,
+                  na.exclude = na.exclude,
                   niter = niter,
                   nburnin = nburnin,
                   priors = priors)

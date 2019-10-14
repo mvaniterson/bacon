@@ -2,7 +2,7 @@ Package: bacon
 Type: Package
 Title: Controlling bias and inflation in association studies using the
         empirical null distribution
-Version: 1.13.0
+Version: 1.13.1
 Authors@R: c(person("Maarten", "van Iterson",
         email="mviterson@gmail.com", role="cre"), person("Erik", "van
         Zwet", role="ctb"))
@@ -20,7 +20,7 @@ Suggests: BiocStyle, knitr, rmarkdown, testthat, roxygen2
 biocViews: ImmunoOncology, StatisticalMethod, Bayesian, Regression,
         GenomeWideAssociation, Transcriptomics, RNASeq,
         MethylationArray, BatchEffect, MultipleComparison
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 Collate: 'BaconClass.R' 'BaconMethods.R' 'bacon.R' 'normmixture.R'
 VignetteBuilder: knitr
 NeedsCompilation: yes

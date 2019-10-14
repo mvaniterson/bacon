@@ -123,8 +123,8 @@ setMethod("meta", "Bacon",function(object, corrected=TRUE, ...){
     ES <- es(object, corrected=corrected)
     SE <- se(object, corrected=corrected)
     W <- 1/SE^2
-    V <- 1/rowSums(W)
-    TS <- rowSums(ES*W)*V
+    V <- 1/rowSums(W, na.rm=object@na.exclude)
+    TS <- rowSums(ES*W, na.rm=object@na.exclude)*V
     Z <- TS/sqrt(V)
 
     ##TODO maybe add more from:

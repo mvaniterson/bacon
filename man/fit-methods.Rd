@@ -4,12 +4,12 @@
 \name{fit}
 \alias{fit}
 \alias{fit,Bacon-method}
-\alias{fit}
 \title{Method to plot mixture fit}
 \usage{
 fit(object, index = 1, ...)
 
-\S4method{fit}{Bacon}(object, index, col = "grey75", border = "grey75", ...)
+\S4method{fit}{Bacon}(object, index, col = "grey75", border = "grey75",
+  ...)
 }
 \arguments{
 \item{object}{'bacon'-object}

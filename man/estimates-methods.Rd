@@ -4,7 +4,6 @@
 \name{estimates}
 \alias{estimates}
 \alias{estimates,Bacon-method}
-\alias{estimates}
 \title{Method to extract the estimated parameters from the 'bacon'-object}
 \usage{
 estimates(object)

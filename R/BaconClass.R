@@ -17,7 +17,8 @@ setClass("Bacon",
                         estimates      = "matrix",
                         priors         = "list",
                         niter          = "integer",
-                        nburnin        = "integer"),
+                        nburnin        = "integer",
+                        na.exclude     = "logical"),
          prototype(teststatistics = matrix(1),
                    effectsizes    = matrix(1),
                    standarderrors = matrix(1),
@@ -25,7 +26,8 @@ setClass("Bacon",
                    estimates      = matrix(1),
                    priors         = list(),
                    niter          = integer(1),
-                   nburnin        = integer(1)),
+                   nburnin        = integer(1),
+                   na.exclude     = logical(1)),
          validity = function(object){
              if(niter <= nburnin)
                  return("niter should be > nburnin!")
@@ -237,7 +239,8 @@ setGeneric("meta", function(object, corrected=TRUE, ...){ standardGeneric("meta"
 setGeneric("topTable", function(object, number=10, adjust.method="bonf", sort.by=c("pval", "eff.size")){ standardGeneric("topTable") })
 
 setMethod("initialize", "Bacon",
-          function(.Object, teststatistics, effectsizes, standarderrors, niter, nburnin, priors) {
+          function(.Object, teststatistics, effectsizes, standarderrors, 
+                            niter, nburnin, priors, na.exclude) {
 
               if(!is.null(teststatistics)){
                   .Object@teststatistics <- as.matrix(teststatistics)
@@ -250,9 +253,9 @@ setMethod("initialize", "Bacon",
                   .Object@teststatistics <- as.matrix(effectsizes/standarderrors)
               }
 
-              if(!all(is.finite(.Object@teststatistics)))
-                  stop("Non finite value(s) in test statistics!")
-
+              if(!all(is.finite(.Object@teststatistics)) & !na.exclude)
+                  stop("Non finite value(s) in test statistics and na.exclude = FALSE!")
+              
               .Object@estimates <- matrix(nrow=ncol(.Object@teststatistics), ncol=9,
                                           dimnames=list(colnames(.Object@teststatistics),
                                                         paste0(rep(c("p.", "mu.", "sigma."), each=3), 0:2)))
@@ -264,6 +267,7 @@ setMethod("initialize", "Bacon",
               .Object@niter <- niter
               .Object@nburnin <- nburnin
               .Object@priors <- priors
+              .Object@na.exclude <- na.exclude
               .Object
           })
 
@@ -308,6 +312,8 @@ n2mfcol <- function(n){
     sigma <- inflation(object)
 
     tstats <- tstat(object, corrected=FALSE)
+    tstats <- na.omit(tstats)
+    
     stdnorm <- apply(tstats, 2, dnorm, mean=0, sd=1)
     empnull <- 0*stdnorm
     
@@ -336,6 +342,7 @@ n2mfcol <- function(n){
 
 .qq <- function(object, ...){
     pvalues  <- pval(object, corrected=FALSE)
+    pvalues <- na.omit(pvalues)
 
     if(is.null(colnames(pvalues))) colnames(pvalues) <- LETTERS[1:ncol(pvalues)]
 
@@ -343,7 +350,10 @@ n2mfcol <- function(n){
                      column = rep(colnames(pvalues), each=nrow(pvalues)),
                      bacon = "uncorrected")
 
-    d2 <- data.frame(pvalues = as.vector(pval(object, corrected=TRUE)),
+    pvalues <- pval(object, corrected=TRUE)
+    pvalues <- na.omit(pvalues)
+    
+    d2 <- data.frame(pvalues = as.vector(pvalues),
                      column = rep(colnames(pvalues), each=nrow(pvalues)),
                      bacon = "corrected")
 
