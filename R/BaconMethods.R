@@ -146,7 +146,7 @@ setMethod("meta", "Bacon",function(object, corrected=TRUE, ...){
 setMethod("topTable", "Bacon", function(object,
                                         number=10,
                                         adjust.method="bonf",
-                                        sort.by=c("pval", "eff.size")){
+                                        sort.by){
 
     sort.by <- match.arg(sort.by)
    

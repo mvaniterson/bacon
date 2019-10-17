@@ -312,16 +312,20 @@ n2mfcol <- function(n){
     sigma <- inflation(object)
 
     tstats <- tstat(object, corrected=FALSE)
+    
+    if(is.null(colnames(tstats))) colnames(tstats) <- LETTERS[1:ncol(tstats)]
+    
+    nas <- is.na(tstats)
     tstats <- na.omit(tstats)
+    column <- rep(colnames(tstats), each=nrow(tstats))
     
     stdnorm <- apply(tstats, 2, dnorm, mean=0, sd=1)
     empnull <- 0*stdnorm
     
     for(i in 1:ncol(tstats)) empnull[,i] <- dnorm(tstats[,i], mean=mu[i], sd=sigma[i])
-    if(is.null(colnames(tstats))) colnames(tstats) <- LETTERS[1:ncol(tstats)]
-
+    
     data <- data.frame(tstats = as.vector(tstats),
-                       column = rep(colnames(tstats), each=nrow(tstats)),
+                       column = column[as.vector(!nas)],
                        stdnorm = as.vector(stdnorm),
                        empnull = as.vector(empnull))
 
@@ -341,20 +345,29 @@ n2mfcol <- function(n){
 }
 
 .qq <- function(object, ...){
+    
     pvalues  <- pval(object, corrected=FALSE)
-    pvalues <- na.omit(pvalues)
-
+    
     if(is.null(colnames(pvalues))) colnames(pvalues) <- LETTERS[1:ncol(pvalues)]
-
+    
+    nas <- is.na(pvalues)
+    pvalues <- na.omit(pvalues)
+    column <- rep(colnames(pvalues), each=nrow(pvalues))
+  
     d1 <- data.frame(pvalues = as.vector(pvalues),
-                     column = rep(colnames(pvalues), each=nrow(pvalues)),
+                     column = column[as.vector(!nas)],
                      bacon = "uncorrected")
 
     pvalues <- pval(object, corrected=TRUE)
+    
+    if(is.null(colnames(pvalues))) colnames(pvalues) <- LETTERS[1:ncol(pvalues)]
+    
+    nas <- is.na(pvalues)
     pvalues <- na.omit(pvalues)
+    column <- rep(colnames(pvalues), each=nrow(pvalues))
     
     d2 <- data.frame(pvalues = as.vector(pvalues),
-                     column = rep(colnames(pvalues), each=nrow(pvalues)),
+                     column = column[as.vector(!nas)],
                      bacon = "corrected")
 
     data <- rbind(d1, d2)
