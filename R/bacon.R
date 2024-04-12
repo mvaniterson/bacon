@@ -75,7 +75,9 @@
 ##'     starting values
 ##' @param na.exclude see ?na.exclude
 ##' @param verbose default FALSE
-##' @param priors list of parameters of for the prior distributions
+##' @param priors list of parameters for the prior distributions
+##' @param globalSeed default 42 global seed. If set to NULL, randomization will occur for sequential and parallel bacon calls
+##' @param parallelSeed default 42 BiocParallel RNGseed. see ?parallelSeed
 ##' @return object of class-Bacon
 ##' @examples
 ##' ##simulate some test-statistic from a normal mixture
@@ -125,8 +127,8 @@ bacon <- function(teststatistics=NULL, effectsizes=NULL, standarderrors=NULL,
                                 mu = list(lambda = c(0.0, 3.0, -3.0),
                                           tau = c(1000.0, 100.0, 100.0)),
                                 epsilon = list(gamma = c(90.0, 5.0, 5.0))),
-                 globalSeed = 42, # if set to NULL, randomization will occur for sequential and parallel bacon calls
-                 parallelSeed = 42){ # if input statistics are a matrix and globalSeed=NULL, setting parallelSeed=NULL will allow randomization across parallel processes within a bacon call and across separate calls to bacon.
+                 globalSeed = 42, 
+                 parallelSeed = 42){ 
 
     
     ##create new Bacon-object
