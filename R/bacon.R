@@ -71,13 +71,17 @@
 ##' @param nburnin length of the burnin period
 ##' @param nbins default 1000 else bin test-statistics
 ##' @param trim default 0.999 trimming test-statistics 
-##' @param level significance leve used to determine prop. null for
+##' @param level significance level used to determine prop. null for
 ##'     starting values
 ##' @param na.exclude see ?na.exclude
 ##' @param verbose default FALSE
 ##' @param priors list of parameters for the prior distributions
-##' @param globalSeed default 42 global seed. If set to NULL, randomization will occur for sequential and parallel bacon calls
-##' @param parallelSeed default 42 BiocParallel RNGseed. If input statistics are a matrix and globalSeed=NULL, setting parallelSeed=NULL will allow randomization across parallel processes within a bacon call and across separate calls to bacon.
+##' @param globalSeed default 42 global seed. If set to NULL, 
+##'     randomization will occur for sequential and parallel bacon calls
+##' @param parallelSeed default 42 BiocParallel RNGseed. If input 
+##'     statistics are a matrix and globalSeed=NULL, setting 
+##'     parallelSeed=NULL will allow randomization across parallel 
+##'     processes within a bacon call and across separate calls to bacon.
 ##' @return object of class-Bacon
 ##' @examples
 ##' ##simulate some test-statistic from a normal mixture
