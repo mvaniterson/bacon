@@ -209,8 +209,9 @@ plot(bcm, type="qq")
 # Adjustment with 95% CI #
 
 A matrix containing a vector of z-scores replicated 100 times is
-generated to simulate data for a obtaining inflation- and bias-
-corrected z-scores and P-values with a 95% CI. This is
+generated to simulate data for calculating averaged inflation
+and bias metrics with a 95% CI and obtaining average-inflation-
+and average-bias-corrected z-scores and P-values. This is
 a toy-example just to illustrate how `bacon` can be used to create
 a sampling distributions of metrics output from `bacon`. The
 resulting sampling distributions can be used to calculate the
