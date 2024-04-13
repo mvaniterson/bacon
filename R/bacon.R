@@ -77,7 +77,7 @@
 ##' @param verbose default FALSE
 ##' @param priors list of parameters for the prior distributions
 ##' @param globalSeed default 42 global seed. If set to NULL, randomization will occur for sequential and parallel bacon calls
-##' @param parallelSeed default 42 BiocParallel RNGseed. see ?parallelSeed
+##' @param parallelSeed default 42 BiocParallel RNGseed. If input statistics are a matrix and globalSeed=NULL, setting parallelSeed=NULL will allow randomization across parallel processes within a bacon call and across separate calls to bacon.
 ##' @return object of class-Bacon
 ##' @examples
 ##' ##simulate some test-statistic from a normal mixture
