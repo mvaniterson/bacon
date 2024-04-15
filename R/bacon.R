@@ -1,5 +1,6 @@
-.bacon <- function(i, object, niter, nbins, trim, level, verbose, priors){
-
+.bacon <- function(i, object, niter, nbins, trim, level, verbose, priors, globalSeed){
+    if(!is.null(globalSeed))
+        set.seed(globalSeed)
     ##TODO add some kind of trimming?
     tstats <- tstat(object)[,i]
     
@@ -69,12 +70,18 @@
 ##' @param niter number of iterations
 ##' @param nburnin length of the burnin period
 ##' @param nbins default 1000 else bin test-statistics
-##' @param trim default 0.999 trimming test-statistics 
-##' @param level significance leve used to determine prop. null for
+##' @param trim default 0.999 trimming test-statistics
+##' @param level significance level used to determine prop. null for
 ##'     starting values
 ##' @param na.exclude see ?na.exclude
 ##' @param verbose default FALSE
-##' @param priors list of parameters of for the prior distributions
+##' @param priors list of parameters for the prior distributions
+##' @param globalSeed default 42 global seed. If set to NULL,
+##'     randomization will occur for sequential and parallel bacon calls
+##' @param parallelSeed default 42 BiocParallel RNGseed. If input
+##'     statistics are a matrix and globalSeed=NULL, setting
+##'     parallelSeed=NULL will allow randomization across parallel
+##'     processes within a bacon call and across separate calls to bacon.
 ##' @return object of class-Bacon
 ##' @examples
 ##' ##simulate some test-statistic from a normal mixture
@@ -123,7 +130,9 @@ bacon <- function(teststatistics=NULL, effectsizes=NULL, standarderrors=NULL,
                                              beta = 0.36), ##original uses 0.36*mad(teststatistics)
                                 mu = list(lambda = c(0.0, 3.0, -3.0),
                                           tau = c(1000.0, 100.0, 100.0)),
-                                epsilon = list(gamma = c(90.0, 5.0, 5.0)))){
+                                epsilon = list(gamma = c(90.0, 5.0, 5.0))),
+                 globalSeed = 42, 
+                 parallelSeed = 42){ 
 
     
     ##create new Bacon-object
@@ -143,17 +152,24 @@ bacon <- function(teststatistics=NULL, effectsizes=NULL, standarderrors=NULL,
             if(nset > 1)
                 message("Did you registered a biocparallel back-end?\n Continuing serial!")
             for(i in 1:ncol(tstat(object)))
-                object@traces[,,i] <- .bacon(i, object, niter, nbins, trim, level, verbose, priors)
+                object@traces[,,i] <- .bacon(i, object, niter, nbins, trim, level, verbose, priors, globalSeed)
         }
         else{
             nworkers <- min(c(nset, nworkers))
             message("Detected ", nworkers, " workers!\n Running in parallel!")
-            ret <- bplapply(1:ncol(tstat(object)), .bacon, object=object,
-                            niter=niter, nbins=nbins, trim=trim, level=level, verbose=verbose, priors=priors)
+            if(!is.null(parallelSeed)){
+                ret <- bplapply(1:ncol(tstat(object)), .bacon, object=object,
+                            niter=niter, nbins=nbins, trim=trim, level=level, verbose=verbose, priors=priors,
+                            globalSeed=globalSeed, BPOPTIONS = bpoptions(RNGseed = parallelSeed))
+            } else {
+                ret <- bplapply(1:ncol(tstat(object)), .bacon, object=object,
+                        niter=niter, nbins=nbins, trim=trim, level=level, verbose=verbose, priors=priors, 
+                        globalSeed=globalSeed)
+            }
             object@traces <- simplify2array(ret)
         }
     } else
-        object@traces[,,1] <- .bacon(1, object, niter, nbins, trim=trim, level, verbose, priors)
+        object@traces[,,1] <- .bacon(1, object, niter, nbins, trim=trim, level, verbose, priors, globalSeed)
 
     ##summarize traces
     for(i in 1:ncol(tstat(object)))

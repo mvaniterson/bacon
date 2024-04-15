@@ -4,12 +4,22 @@
 \alias{bacon}
 \title{Gibbs sampler}
 \usage{
-bacon(teststatistics = NULL, effectsizes = NULL,
-  standarderrors = NULL, niter = 5000L, nburnin = 2000L,
-  nbins = 1000, trim = 0.999, level = 0.05, na.exclude = FALSE,
-  verbose = FALSE, priors = list(sigma = list(alpha = 1.28, beta =
-  0.36), mu = list(lambda = c(0, 3, -3), tau = c(1000, 100, 100)), epsilon
-  = list(gamma = c(90, 5, 5))))
+bacon(
+  teststatistics = NULL,
+  effectsizes = NULL,
+  standarderrors = NULL,
+  niter = 5000L,
+  nburnin = 2000L,
+  nbins = 1000,
+  trim = 0.999,
+  level = 0.05,
+  na.exclude = FALSE,
+  verbose = FALSE,
+  priors = list(sigma = list(alpha = 1.28, beta = 0.36), mu = list(lambda = c(0, 3, -3),
+    tau = c(1000, 100, 100)), epsilon = list(gamma = c(90, 5, 5))),
+  globalSeed = 42,
+  parallelSeed = 42
+)
 }
 \arguments{
 \item{teststatistics}{numeric vector or matrix of test-statistics}
@@ -26,14 +36,22 @@ bacon(teststatistics = NULL, effectsizes = NULL,
 
 \item{trim}{default 0.999 trimming test-statistics}
 
-\item{level}{significance leve used to determine prop. null for
+\item{level}{significance level used to determine prop. null for
 starting values}
 
 \item{na.exclude}{see ?na.exclude}
 
 \item{verbose}{default FALSE}
 
-\item{priors}{list of parameters of for the prior distributions}
+\item{priors}{list of parameters for the prior distributions}
+
+\item{globalSeed}{default 42 global seed. If set to NULL,
+randomization will occur for sequential and parallel bacon calls}
+
+\item{parallelSeed}{default 42 BiocParallel RNGseed. If input
+statistics are a matrix and globalSeed=NULL, setting
+parallelSeed=NULL will allow randomization across parallel
+processes within a bacon call and across separate calls to bacon.}
 }
 \value{
 object of class-Bacon
