@@ -14,13 +14,14 @@ Description: Bacon can be used to remove inflation and bias often
         distribution using a Gibbs Sampling algorithm by fitting a
         three-component normal mixture on z-scores.
 License: GPL (>= 2)
+Encoding: UTF-8
 Depends: R (>= 3.3), methods, stats, ggplot2, graphics, BiocParallel,
 	 ellipse
 Suggests: BiocStyle, knitr, rmarkdown, testthat, roxygen2
 biocViews: ImmunoOncology, StatisticalMethod, Bayesian, Regression,
         GenomeWideAssociation, Transcriptomics, RNASeq,
         MethylationArray, BatchEffect, MultipleComparison
-RoxygenNote: 6.1.1
+RoxygenNote: 7.3.1
 Collate: 'BaconClass.R' 'BaconMethods.R' 'bacon.R' 'normmixture.R'
 VignetteBuilder: knitr
 NeedsCompilation: yes

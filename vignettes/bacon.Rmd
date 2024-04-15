@@ -49,10 +49,7 @@ The function `bacon` requires a vector or a matrix of z-scores and/or
 effect-sizes and standard errors, e.g., those extracted from
 association analyses using a linear regression approach. For
 fixed-effect meta-analysis a matrix of effect-sizes and
-standard-errors is required. For obtaining inflation- and
-bias-corrected statistics with a 95% CI, a matrix of z-scores and/or
-effect-sizes and standard errors where all columns are duplicates
-of a single vector repeated >=100 times.
+standard-errors is required. 
 
 This vignette illustrates the use of `r Biocpkg("bacon")` using
 simulated z-scores, effect-sizes and standard errors to avoid long
@@ -208,25 +205,20 @@ plot(bcm, type="qq")
 
 # Adjustment with 95% CI #
 
-A matrix containing a vector of z-scores replicated 100 times is
-generated to simulate data for calculating averaged inflation
-and bias metrics with a 95% CI and obtaining average-inflation-
-and average-bias-corrected z-scores and P-values. This is
-a toy-example just to illustrate how `bacon` can be used to create
-a sampling distributions of metrics output from `bacon`. The
-resulting sampling distributions can be used to calculate the
-average estimated inflation and bias metrics with a 95%
-CI. Averaged inflation- and bias- adjusted z-scores and p-values
-can also be easily extracted.
+Here we describe how inflation- and bias-corrected statistics with a 95% Confidence
+Interval (CI) can be constructed. 
 
+Given a vector of z-scores. Replicate the z-scores, say 100 times, and store in a matrix. 
 ```{r simulateddata3, message=FALSE}
-set.seed(12345)
-biases <- runif(6, -0.2, 0.2)
-inflations <- runif(6, 1, 1.3)
-zs <- matrix(nrow=5000, ncol=1)
-zs[,1] <- rnormmix(5000, c(0.9, biases[1], inflations[1], 0, 4, 1), shuffle=FALSE)
-zs <- cbind(zs, matrix(zs[,1], nrow=5000, ncol=99))
-colnames(zs) <- c("A", paste0("B", 1:99))
+zs <- rnormmix(5000, c(0.9, 0.2, 1.3, 1, 4, 1))
+```
+
+This is a toy-example just to illustrate how `bacon` can be used to create
+a sampling distributions of metrics output from `bacon` therefore we just use 10 replicates to speedup the calculations.
+
+```{r simulateddata4, message=FALSE}
+zs <- cbind(zs, matrix(zs, nrow=5000, ncol=9))
+colnames(zs) <- c(paste0("A", 1:10))
 rownames(zs) <- 1:5000
 head(rownames(zs))
 head(colnames(zs))
@@ -236,13 +228,13 @@ By default the function `bacon` sets a global seed for random number
 generation (RNG) that occurs in the Gibbs Sampling process. The global seed
 is sufficient for controlling the RNG when the input is a single-vector or
 a matrix so that each call to bacon produces the same results. Since
-BiocParallel performs RNG independently of the global environment,
-the globalSeed can be set to NULL to allow RNG across each parallel
-process that calls `bacon`, and the parallelSeed (default 42) used by
-BiocParallel will control the RNG so that a separate call to `bacon` with
+`r Biocpkg("BiocParallel")` performs RNG independently of the global environment,
+the `globalSeed` can be set to `NULL` to allow RNG across each parallel
+process that calls `bacon`, and the `parallelSeed` (default 42) used by
+`r Biocpkg("BiocParallel")` will control the RNG so that a separate call to `bacon` with
 the same input matrix will produce the same 'randomized' results.
 
-```{r runbacon}
+```{r runbaconseed}
 library(BiocParallel)
 register(MulticoreParam(1, log=TRUE))
 bc <- bacon(teststatistics = zs, 
@@ -251,20 +243,34 @@ bc <- bacon(teststatistics = zs,
 bc
 head(inflation(bc))
 head(bias(bc))
+```
 
-# Calculate overall average for bias and inflation
+The resulting sampling distributions can be used to calculate the
+average estimated inflation and bias metrics with a 95%
+CI. Averaged inflation- and bias- adjusted z-scores and p-values
+can also be easily extracted.
+
+For example, overall average bias and inflation:
+
+```{r ciave}
 mean_bias <- mean(bias(bc))
 mean_bias
 mean_inflation <- mean(inflation(bc))
 mean_inflation
+```
 
-# Calculate 95% confidence interval for bias and inflation
+The 95% confidence intervals:
+
+```{r cici}
 CI_bias <- quantile(bias(bc), c(0.025, 0.975))
 CI_bias
 CI_inflation <- quantile(inflation(bc), c(0.025, 0.975))
 CI_inflation
+```
 
-# Extract the average inflation- and bias-corrected z-scores and P-values
+And average inflation- and bias-corrected z-scores and P-values:
+
+```{r cizspval}
 avg_corrected_zs <- rowMeans(tstat(bc))
 avg_corrected_zs[1:5]
 avg_corrected_pvals <- rowMeans(bacon::pval(bc))
