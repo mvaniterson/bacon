@@ -76,19 +76,26 @@ setMethod("traces", "Bacon", function(object, burnin=TRUE, index=1){
     else
         gstraces <- object@traces[-c(1:object@nburnin),,index]
 
-    thetahat <- estimates(object)[index,]
-
-    op <- par(mfcol=c(3, 3), mar=c(2,4,2,2))
-    for(i in 1:9) {
-        if(burnin)
-            plot(1:object@niter, gstraces[,i],
-                 ylab=colnames(gstraces)[i], type="l", xlab="", main = "", lwd=0.3)
-        else
-            plot((object@nburnin+1):object@niter, gstraces[,i],
-                 ylab=colnames(gstraces)[i], type="l", xlab="", main = "", lwd=0.3)
-        abline(h=thetahat[i], col=2, lwd=2)
-    }
-    par(op)
+    thetahat <- as.data.frame(estimates(object)[index,]) %>% 
+        rownames_to_column("variable") %>%
+        rename(value = "estimates(object)[index, ]")
+    g <- ggplot(gstraces_melted, aes(x = iteration, y = value)) +
+    geom_line() +
+    geom_hline(data = thetahat_df, aes(yintercept=value), color = "red") +
+    facet_wrap(~variable, scales = "free_y", strip.position = "left") +
+    scale_x_continuous(labels = c("",1000, "", 3000, "", 5000)) +
+    theme_cowplot(font_size = 12) +
+    theme(strip.background = element_blank(),
+          strip.placement = "outside",
+          plot.margin = margin(0.15, 0.25, 0.15, 0.15, "in")) +
+    xlab("Iteration") +
+    ylab("Trace")
+  
+    if (!burnin) {
+    g <- g + xlim(c((object@nburnin+1), object@niter))
+    } 
+  
+    return(g)
 })
 
 ##' @rdname posteriors-methods
@@ -103,17 +110,26 @@ setMethod("posteriors", "Bacon", function(object, thetas, index, alphas, xlab, y
     if(xlab=="") xlab <- thetas[1]
     if(ylab=="") ylab <- thetas[2]
 
-    plot(gstraces, pch=20, xlab=xlab, ylab=ylab, bty='n',
-         main=c("median at:", round(estimates(object)[thetas], 3)))
-    points(estimates(object)[index, thetas], col=3, pch=17, cex=2)
-
-    for(alpha in alphas)
-        lines(ellipse(cov(gstraces), centre=colMeans(gstraces), level=alpha), col="blue", ...)
+    df <- data.frame(x = gstraces[,1], y = gstraces[,2])
+    est_df <- data.frame(x = estimates(object)[index, thetas[1]], y = estimates(object)[index, thetas[2]])
+    
+    # Plot using ggplot
+    p <- ggplot(df, aes(x = x, y = y)) +
+        geom_point(shape = 20) +
+        stat_ellipse(level = 0.95, col = "blue") +
+        stat_ellipse(level = 0.9, col = "blue") +
+        stat_ellipse(level = 0.75, col = "blue") +
+        labs(x = xlab,
+             y = ylab) + 
+        ggtitle(paste("median at:", round(estimates(object)[thetas], 3))) +
+        geom_point(data = est_df, aes(x = x, y = y), color = "red", shape = 17, size = 4)
+    
+    return(p)
 })
 
 ##' @rdname fit-methods
 ##' @aliases fit
-setMethod("fit", "Bacon", function(object, index, col="grey75", border="grey75", ...){
+setMethod("fit", "Bacon", function(object, index, ...){
     plotnormmix(tstat(object, corrected=FALSE)[, index], estimates(object)[index, ], ...)
 })
 
