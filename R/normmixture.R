@@ -74,12 +74,26 @@ dnormmix <- function(x, theta){
 plotnormmix <- function(x, theta, ...) {
     if(length(theta) %% 3 != 0)
         stop("Length of theta should be a multiple of three!")
-    hist(x=x, freq=FALSE, ...)
-    f <- function(x) dnormmix(x, theta)
-    curve(expr=f, add=TRUE, col=1, lwd=2)
-    ncomp <- length(theta)/3
-    for(k in 1:ncomp) {
-        f <- function(x) theta[k]*dnorm(x, mean=theta[k+3], sd=theta[k+6])
-        curve(expr=f, add=TRUE, col=k+1, lwd=2)
-    }
+    x <- data.frame(x = x)
+    theta <- data.frame(y = theta)
+    fit <- ggplot(x, aes(x=x , y = after_stat(density))) +
+    geom_histogram(fill = "grey", color="black", binwidth = 1.5) +
+    geom_line(aes(x=x, y =dnorm(x, mean(x), sd(x))), lwd=1) +
+    geom_line(aes(x=x, 
+              y=theta["p.0",]*dnorm(x, theta["mu.0",], theta["sigma.0",])), 
+              color="red",
+              lwd = 1.5) +
+    geom_line(aes(x=x, 
+              y=theta["p.1",]*dnorm(x, theta["mu.1",], theta["sigma.1",])), 
+              color="green",
+              lwd=1.5) +
+    geom_line(aes(x=x, 
+              y=theta["p.2",]*dnorm(x, theta["mu.2",], theta["sigma.2",])), 
+              color="blue",
+              lwd=1.5) +
+    theme_cowplot(font_size = 12) +
+    xlab("Test Statistics") +
+    ylab("Density")
+  
+    return(fit)
 }
